@@ -73,7 +73,9 @@ def build_tools() -> Tools:
 
     @tools.action(
         "Wait for the user to manually complete login, then continue. "
-        "Only if not already logged in.",
+        "ONLY call this when there is NO circular profile/avatar button "
+        "in the TOP-RIGHT of the header. Seeing the word 「ログイン」 "
+        "somewhere else on the page does NOT mean logged out.",
         param_model=NoParamsAction,
     )
     async def wait_for_manual_login(_: NoParamsAction) -> ActionResult:
@@ -143,31 +145,43 @@ def build_tools() -> Tools:
 
 def build_task(postal_code: str, combination: int, total: int) -> str:
     return f"""
-You are scraping Zehitomo with a saved Chrome profile.
+You are scraping Zehitomo with a saved Chrome profile (already logged in earlier).
 This is combination {combination}/{total} (use different random answers than before).
+
+LOGIN CHECK (important — do not get this wrong):
+- LOGGED IN = a circular profile / avatar button is visible in the TOP-RIGHT
+  corner of the site header.
+- LOGGED OUT = that top-right profile circle is missing, and the header shows
+  「ログイン」 / 「新規登録」 as header buttons instead.
+- The word 「ログイン」 may still appear elsewhere on the page (footer, banners,
+  marketing). IGNORE that. Only look at the TOP-RIGHT header.
+- If the top-right profile circle is present: you ARE logged in.
+  Do NOT call wait_for_manual_login.
+- Only call wait_for_manual_login when the top-right profile circle is missing.
 
 Steps:
 1. Go to {START_URL}.
-2. If not logged in (navbar shows 「ログイン」), call wait_for_manual_login.
-3. Reload {START_URL}.
-4. Go to {SERVICE_URL}, click 「{SERVICE_NAME}」 (URL: {AIRCON_URL}).
-5. Click 「戸建タイプ」.
-6. Questionnaire modal: until 「スキップ」 appears:
+2. Check login using the TOP-RIGHT profile circle rule above.
+3. Prefer going directly to the service page:
+   {AIRCON_URL}
+   (You may use {SERVICE_URL} and click 「{SERVICE_NAME}」 if needed.)
+4. Click 「戸建タイプ」.
+5. Questionnaire modal: until 「スキップ」 appears:
    - count radio options
    - call pick_random_option
    - select that index
    - click 「次へ」
-7. Click 「スキップ」 when it appears.
-8. Enter postal code `{postal_code}`, click 「プロを見る」.
-9. If captcha appears or 「プロを見る」 does nothing: call report_captcha and STOP.
-10. If 「前回の依頼を確認する」 and 「新しく依頼を出す」 appear,
+6. Click 「スキップ」 when it appears.
+7. Enter postal code `{postal_code}`, click 「プロを見る」.
+8. If captcha appears or 「プロを見る」 does nothing: call report_captcha and STOP.
+9. If 「前回の依頼を確認する」 and 「新しく依頼を出す」 appear,
     click 「前回の依頼を確認する」. Then call wait_one_minute.
-11. For EVERY contractor in the left list:
+10. For EVERY contractor in the left list:
     - click name → chat opens
     - click name at top of chat → details
     - get location; get phone/email from chat (empty string if missing)
     - call extract_current_contractor
-12. Return structured result for postal `{postal_code}` and service 「{SERVICE_NAME}」.
+11. Return structured result for postal `{postal_code}` and service 「{SERVICE_NAME}」.
 Do not invent data.
 """
 

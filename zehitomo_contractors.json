@@ -1,9 +1,21 @@
 {
-  "profile": "azimon",
+  "profile": "alamin",
   "service": "エアコンクリーニング",
   "postal_code": "182-0004",
   "combinations_done": 1,
   "contractors": [
+    {
+      "contractor_name": "ねこのハンドさん",
+      "location": "神奈川県川崎市-宮前区馬絹",
+      "phone_number": "09062355760",
+      "email": "tanu-keti@ezweb.ne.jp"
+    },
+    {
+      "contractor_name": "GRSさん",
+      "location": "東京都多摩市連光寺",
+      "phone_number": "",
+      "email": ""
+    },
     {
       "contractor_name": "冨樫さん",
       "location": "東京都江戸川区西一之江",
@@ -17,20 +29,8 @@
       "email": ""
     },
     {
-      "contractor_name": "下田さん",
-      "location": "東京都西東京市富士町",
-      "phone_number": "",
-      "email": ""
-    },
-    {
-      "contractor_name": "株式会社マンキャピタルさん",
-      "location": "東京都豊島区東池袋",
-      "phone_number": "",
-      "email": ""
-    },
-    {
-      "contractor_name": "ゆりくっすさん",
-      "location": "神奈川県横浜市-神奈川区金港町",
+      "contractor_name": "イキナリデンキさん",
+      "location": "東京都町田市高ヶ坂",
       "phone_number": "",
       "email": ""
     }
@@ -38,11 +38,23 @@
   "runs": [
     {
       "combination": 1,
-      "finished_at": "2026-11-02T10:07:47.749423+00:00",
+      "finished_at": "2026-11-02T11:28:18.523487+00:00",
       "postal_code": "182-0004",
       "service": "エアコンクリーニング",
-      "profile": "azimon",
+      "profile": "alamin",
       "contractors": [
+        {
+          "contractor_name": "ねこのハンドさん",
+          "location": "神奈川県川崎市-宮前区馬絹",
+          "phone_number": "09062355760",
+          "email": "tanu-keti@ezweb.ne.jp"
+        },
+        {
+          "contractor_name": "GRSさん",
+          "location": "東京都多摩市連光寺",
+          "phone_number": "",
+          "email": ""
+        },
         {
           "contractor_name": "冨樫さん",
           "location": "東京都江戸川区西一之江",
@@ -56,20 +68,8 @@
           "email": ""
         },
         {
-          "contractor_name": "下田さん",
-          "location": "東京都西東京市富士町",
-          "phone_number": "",
-          "email": ""
-        },
-        {
-          "contractor_name": "株式会社マンキャピタルさん",
-          "location": "東京都豊島区東池袋",
-          "phone_number": "",
-          "email": ""
-        },
-        {
-          "contractor_name": "ゆりくっすさん",
-          "location": "神奈川県横浜市-神奈川区金港町",
+          "contractor_name": "イキナリデンキさん",
+          "location": "東京都町田市高ヶ坂",
           "phone_number": "",
           "email": ""
         }
