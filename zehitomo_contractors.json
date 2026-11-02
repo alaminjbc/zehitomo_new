@@ -1,0 +1,36 @@
+{
+  "postal_code": "182-0004",
+  "service": "エアコンクリーニング",
+  "contractors": [
+    {
+      "contractor_name": "冨樫さん",
+      "location": "東京都江戸川区西一之江",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "飯野さん",
+      "location": "東京都足立区新田",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "下田さん",
+      "location": "東京都西東京市富士町",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "株式会社マンキャピタルさん",
+      "location": "東京都豊島区東池袋",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "ゆりくっすさん",
+      "location": "神奈川県横浜市-神奈川区金港町",
+      "phone_number": "",
+      "email": ""
+    }
+  ]
+}
