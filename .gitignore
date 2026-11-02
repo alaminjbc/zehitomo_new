@@ -1,6 +1,8 @@
 .venv/
 zehitomo-profile
 zehitomo_profile
+profiles/**
+!profiles/registry.json
 .DS_Store
 venv
 .venv312
