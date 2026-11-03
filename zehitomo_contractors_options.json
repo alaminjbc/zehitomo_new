@@ -1,0 +1,91 @@
+{
+  "profile": "azimon",
+  "service": "エアコンクリーニング",
+  "service_url": "https://www.zehitomo.com/home/cleaning/electronics-cleaning/air-conditioner-cleaner",
+  "options_file": "/Users/mdalamintokder/zehitomo_new/combination_creation/options.json",
+  "combinations_done": [
+    "combination1"
+  ],
+  "contractors": [
+    {
+      "contractor_name": "冨樫さん",
+      "location": "東京都江戸川区西一之江",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "飯野さん",
+      "location": "東京都足立区新田",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "下田さん",
+      "location": "東京都西東京市富士町",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "株式会社マンキャピタルさん",
+      "location": "東京都豊島区東池袋",
+      "phone_number": "",
+      "email": ""
+    },
+    {
+      "contractor_name": "ゆりくっすさん",
+      "location": "神奈川県横浜市神奈川区金港町",
+      "phone_number": "",
+      "email": ""
+    }
+  ],
+  "runs": [
+    {
+      "combination_id": "combination1",
+      "answers": [
+        "戸建タイプ",
+        "可能な限り早く",
+        "家庭用",
+        "駐車場あり（無料）",
+        "1台",
+        "いない",
+        "182-0004"
+      ],
+      "finished_at": "2026-11-03T08:08:26.778259+00:00",
+      "postal_code": "182-0004",
+      "service": "エアコンクリーニング",
+      "profile": "azimon",
+      "contractors": [
+        {
+          "contractor_name": "冨樫さん",
+          "location": "東京都江戸川区西一之江",
+          "phone_number": "",
+          "email": ""
+        },
+        {
+          "contractor_name": "飯野さん",
+          "location": "東京都足立区新田",
+          "phone_number": "",
+          "email": ""
+        },
+        {
+          "contractor_name": "下田さん",
+          "location": "東京都西東京市富士町",
+          "phone_number": "",
+          "email": ""
+        },
+        {
+          "contractor_name": "株式会社マンキャピタルさん",
+          "location": "東京都豊島区東池袋",
+          "phone_number": "",
+          "email": ""
+        },
+        {
+          "contractor_name": "ゆりくっすさん",
+          "location": "神奈川県横浜市神奈川区金港町",
+          "phone_number": "",
+          "email": ""
+        }
+      ]
+    }
+  ]
+}

@@ -79,8 +79,11 @@ def build_tools() -> Tools:
         param_model=NoParamsAction,
     )
     async def wait_for_manual_login(_: NoParamsAction) -> ActionResult:
-        input(
-            "\nNot logged in. Log in manually in the browser, then press ENTER.\n"
+        print(
+            "\nNot logged in. Log in manually in the browser, then press ENTER here."
+        )
+        await asyncio.to_thread(
+            input, "Press ENTER when login is complete: "
         )
         return ActionResult(extracted_content="Manual login completed.")
 
@@ -202,6 +205,12 @@ async def scrape_one(
         headless=False,
         keep_alive=True,
         window_size={"width": 1440, "height": 900},
+        # browser-use defaults prevent the window from coming to the front on macOS
+        ignore_default_args=[
+            "--disable-window-activation",
+            "--disable-focus-on-load",
+        ],
+        args=["--start-maximized"],
     )
     agent = Agent(
         task=build_task(postal_code, combination, total),
