@@ -7,10 +7,10 @@ Usage:
 
     # scrape first combination of エアコンクリーニング
     python run_scrape_options.py azimon --service エアコンクリーニング --limit 1
+    
 
     # scrape combination1 and combination2 only
-    python run_scrape_options.py azimon --service エアコンクリーニング \\
-        --combination combination1 --combination combination2
+    python run_scrape_options.py azimon --service エアコンクリーニング --combination combination1 --combination combination2
 
     # scrape all combinations for a service
     python run_scrape_options.py azimon --service エアコンクリーニング
@@ -26,9 +26,12 @@ import asyncio
 import json
 import os
 import re
+import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -46,6 +49,198 @@ START_URL = f"{BASE_URL}/"
 MODEL = os.getenv("GOOGLE_MODEL", "gemini-3.6-flash")
 MAX_STEPS = 250
 PAUSE_BETWEEN = 15
+PROFILE_LOCK_NAMES = (
+    "SingletonLock",
+    "SingletonCookie",
+    "SingletonSocket",
+    "RunningChromeVersion",
+)
+
+URL_RE = re.compile(r"https?://[^\s<>\"'）)」】\]}]+", re.IGNORECASE)
+ZEHITOMO_PROFILE_RE = re.compile(
+    r"https?://(?:www\.)?zehitomo\.com/profile/[^\s<>\"'）)」】\]?#]*",
+    re.IGNORECASE,
+)
+# Click Google result title #index (0 = first, 1 = second).
+GOOGLE_CLICK_RESULT_JS = """
+(index) => {
+  const h3s = Array.from(document.querySelectorAll('h3'));
+  if (index < 0 || index >= h3s.length) {
+    return { ok: false, reason: 'no_result', count: h3s.length };
+  }
+  const h3 = h3s[index];
+  let a = h3.querySelector('a[href]') || h3.closest('a');
+  if (!a) {
+    let p = h3.parentElement;
+    for (let i = 0; i < 5 && p; i++) {
+      a = p.querySelector('a[href]');
+      if (a) break;
+      p = p.parentElement;
+    }
+  }
+  if (!a) return { ok: false, reason: 'no_link', text: (h3.innerText || '').trim() };
+  try { a.setAttribute('target', '_self'); } catch (e) {}
+  a.click();
+  return { ok: true, text: (h3.innerText || '').trim().slice(0, 120) };
+}
+"""
+
+CHAT_CONTENT_JS = """
+() => {
+  const selectors = [
+    '[class*="ChatMessage"]',
+    '[class*="chat-message"]',
+    '[class*="MessageBubble"]',
+    '[class*="message-bubble"]',
+    '[class*="MessageBody"]',
+    '[class*="message-body"]',
+    '[class*="MessageContent"]',
+    '[data-test-id*="message"]',
+    '[class*="Conversation"] [class*="Message"]',
+    '[class*="ChatThread"]',
+    '[class*="chat-thread"]',
+  ];
+  const texts = [];
+  const hrefs = [];
+  const seenEl = new Set();
+
+  const collect = (root) => {
+    if (!root || seenEl.has(root)) return;
+    seenEl.add(root);
+    const t = (root.innerText || '').trim();
+    if (t) texts.push(t);
+    for (const a of root.querySelectorAll('a[href]')) {
+      if (a.href) hrefs.push(a.href);
+    }
+  };
+
+  for (const sel of selectors) {
+    for (const el of document.querySelectorAll(sel)) collect(el);
+  }
+
+  // Fallback: right-hand chat / conversation panel if nothing matched
+  if (!texts.length) {
+    const fallbacks = [
+      '[class*="ChatPanel"]',
+      '[class*="chat-panel"]',
+      '[class*="ConversationPanel"]',
+      '[class*="MessageList"]',
+      'main',
+    ];
+    for (const sel of fallbacks) {
+      const el = document.querySelector(sel);
+      if (el) {
+        collect(el);
+        break;
+      }
+    }
+  }
+
+  return { text: texts.join('\\n'), hrefs };
+}
+"""
+
+
+def _clean_url(url: str) -> str:
+    return url.rstrip(".,;:!?）)」】\"]}'")
+
+
+def _unwrap_google_href(href: str) -> str:
+    """Resolve Google redirect (/url?q=...) to the real destination URL."""
+    if "google." in href and "/url?" in href:
+        qs = parse_qs(urlparse(href).query)
+        if "q" in qs and qs["q"]:
+            return unquote(qs["q"][0])
+        if "url" in qs and qs["url"]:
+            return unquote(qs["url"][0])
+    return href
+
+
+def normalize_zehitomo_profile_url(url: str) -> str:
+    """Return cleaned zehitomo.com/profile/... URL, or "" if not a profile page."""
+    if not url:
+        return ""
+    real = _clean_url(_unwrap_google_href(url))
+    m = ZEHITOMO_PROFILE_RE.search(real)
+    if m:
+        return _clean_url(m.group(0))
+    # Also accept final browser URL path even if regex is picky
+    try:
+        parsed = urlparse(real)
+        host = (parsed.hostname or "").lower()
+        if host.endswith("zehitomo.com") and "/profile/" in (parsed.path or ""):
+            return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip()
+    except Exception:
+        pass
+    return ""
+
+
+def extract_other_website_urls(
+    text: str,
+    hrefs: list[str] | None = None,
+) -> str:
+    """Non-Zehitomo http(s) links from chat message text/anchors only."""
+    found: list[str] = []
+    seen: set[str] = set()
+
+    def add(raw: str) -> None:
+        url = _clean_url(_unwrap_google_href(raw or ""))
+        if not url.startswith("http"):
+            return
+        lower = url.lower()
+        if "zehitomo.com" in lower:
+            return
+        if "google." in lower:
+            return
+        if url in seen:
+            return
+        seen.add(url)
+        found.append(url)
+
+    for href in hrefs or []:
+        add(href)
+    for match in URL_RE.finditer(text or ""):
+        add(match.group(0))
+    return ", ".join(found)
+
+
+def parse_evaluate_result(raw: Any) -> Any:
+    """browser-use Page.evaluate() always returns a string (JSON for objects)."""
+    if raw is None or raw == "":
+        return None
+    if isinstance(raw, (dict, list)):
+        return raw
+    if isinstance(raw, str):
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return raw
+    return raw
+
+
+async def page_eval(page, js: str, *args: Any) -> Any:
+    return parse_evaluate_result(await page.evaluate(js, *args))
+
+
+async def page_goto(page, url: str, *, settle_s: float = 1.2) -> None:
+    """Navigate with browser-use Page (no Playwright wait_for_load_state)."""
+    await page.goto(url)
+    await asyncio.sleep(settle_s)
+
+
+async def current_url(browser_session, page=None) -> str:
+    try:
+        url = await browser_session.get_current_page_url()
+        if url:
+            return url
+    except Exception:
+        pass
+    if page is not None:
+        try:
+            return await page.get_url()
+        except Exception:
+            pass
+    return ""
 
 
 class Contractor(BaseModel):
@@ -53,6 +248,22 @@ class Contractor(BaseModel):
     location: str = Field(description="Location from details/map")
     phone_number: str = Field(default="", description="Phone or empty")
     email: str = Field(default="", description="Email or empty")
+    url_to_access_to_contractor: str = Field(
+        default="",
+        description=(
+            "Zehitomo public profile URL "
+            "(https://www.zehitomo.com/profile/...) found by Google-searching "
+            "contractor_name + ' zehitomo', opening the top 1-2 result links, "
+            "and verifying the final page URL"
+        ),
+    )
+    other_contractor_website_url: str = Field(
+        default="",
+        description=(
+            "Non-Zehitomo website/URL taken only from contractor chat "
+            "messages (empty if none)"
+        ),
+    )
 
 
 class ScrapingResult(BaseModel):
@@ -65,6 +276,54 @@ class ScrapingResult(BaseModel):
 def profile_path(name: str) -> Path:
     safe = re.sub(r"[^a-zA-Z0-9_-]+", "_", name).strip("_") or "profile"
     return PROFILES_ROOT / safe
+
+
+def find_google_chrome() -> Path | None:
+    """Same real Chrome binary used by login_profile.py (not Playwright Chromium)."""
+    if sys.platform == "darwin":
+        candidates = [
+            Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
+            Path(
+                "/Applications/Google Chrome Canary.app/Contents/MacOS/"
+                "Google Chrome Canary"
+            ),
+        ]
+    elif sys.platform == "win32":
+        local = Path.home() / "AppData/Local/Google/Chrome/Application/chrome.exe"
+        candidates = [
+            local,
+            Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
+            Path(r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"),
+        ]
+    else:
+        candidates = []
+        for name in (
+            "google-chrome",
+            "google-chrome-stable",
+            "chrome",
+        ):
+            found = shutil.which(name)
+            if found:
+                candidates.append(Path(found))
+
+    for path in candidates:
+        if path.is_file():
+            return path
+    return None
+
+
+def clear_stale_profile_locks(path: Path) -> list[str]:
+    """
+    Remove Singleton* leftovers from a crashed Chrome/Chromium launch.
+    Safe when no process is using this user-data-dir.
+    """
+    removed: list[str] = []
+    for name in PROFILE_LOCK_NAMES:
+        lock = path / name
+        if lock.exists() or lock.is_symlink():
+            lock.unlink(missing_ok=True)
+            removed.append(name)
+    return removed
 
 
 def load_options(path: Path = OPTIONS_FILE) -> dict[str, Any]:
@@ -159,19 +418,42 @@ def build_tools() -> Tools:
             error="CAPTCHA_DETECTED",
         )
 
-    @tools.action("Extract phone and email from the open chat page.")
-    async def extract_current_contractor(browser_session) -> ActionResult:
+    @tools.action(
+        "Extract phone, email, and any non-Zehitomo website URLs "
+        "from the contractor CHAT MESSAGES only (not the whole page). "
+        "Call this while the chat/details for that contractor are open. "
+        "This action takes no arguments.",
+        param_model=NoParamsAction,
+    )
+    async def extract_current_contractor(
+        _: NoParamsAction,
+        browser_session,
+    ) -> ActionResult:
         page = await browser_session.get_current_page()
-        text = await page.inner_text("body")
+        chat = await page_eval(page, CHAT_CONTENT_JS)
+        if not isinstance(chat, dict):
+            chat = {}
+        chat_text = chat.get("text") or ""
+        chat_hrefs = chat.get("hrefs") or []
+
+        # Phone/email: prefer chat text; fall back to body if chat empty
+        scan_text = chat_text
+        if not str(scan_text).strip():
+            scan_text = await page_eval(
+                page, "() => (document.body && document.body.innerText) || ''"
+            )
+            scan_text = scan_text if isinstance(scan_text, str) else str(scan_text or "")
 
         email_match = re.search(
             r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}",
-            text,
+            scan_text,
         )
         phone_match = re.search(
             r"(?<!\d)(?:0\d{1,4}[-−]\d{1,4}[-−]\d{3,4}|0\d{9,10})(?!\d)",
-            text,
+            scan_text,
         )
+        # Website URL: chat messages / chat anchors only (never whole page)
+        other_url = extract_other_website_urls(str(chat_text), list(chat_hrefs))
         return ActionResult(
             extracted_content=json.dumps(
                 {
@@ -181,7 +463,114 @@ def build_tools() -> Tools:
                         else ""
                     ),
                     "email": email_match.group(0) if email_match else "",
-                    "page_text_preview": text[:3000],
+                    "other_contractor_website_url": other_url,
+                    "chat_text_preview": str(chat_text)[:3000],
+                },
+                ensure_ascii=False,
+            )
+        )
+
+    @tools.action(
+        "Google-search \"{contractor_name} zehitomo\", click the first two "
+        "result links, and return url_to_access_to_contractor if a page is "
+        "https://www.zehitomo.com/profile/... "
+        "Pass the exact contractor_name shown on Zehitomo. "
+        "This tool returns to the Zehitomo request page when done — "
+        "do NOT use go_back afterward."
+    )
+    async def find_url_to_access_to_contractor(
+        contractor_name: str,
+        browser_session,
+    ) -> ActionResult:
+        name = (contractor_name or "").strip()
+        if not name:
+            return ActionResult(
+                extracted_content=json.dumps(
+                    {
+                        "contractor_name": "",
+                        "url_to_access_to_contractor": "",
+                        "reason": "empty contractor_name",
+                    },
+                    ensure_ascii=False,
+                )
+            )
+
+        page = await browser_session.get_current_page()
+        return_url = await current_url(browser_session, page)
+        if "zehitomo.com" not in return_url.lower():
+            return_url = return_url or START_URL
+
+        query = f"{name} zehitomo"
+        search_url = (
+            "https://www.google.com/search?hl=ja&q=" + quote_plus(query)
+        )
+
+        # 1) Google search
+        print(f"[profile-url] search: {query!r}")
+        await page_goto(page, search_url, settle_s=2.0)
+
+        # 2) Click first two result titles; keep first zehitomo profile URL
+        profile_url = ""
+        opened: list[dict[str, str]] = []
+        for i in range(2):
+            await page_goto(page, search_url, settle_s=1.5)
+            click = await page_eval(page, GOOGLE_CLICK_RESULT_JS, i)
+            if not isinstance(click, dict) or not click.get("ok"):
+                print(f"[profile-url] click #{i + 1} failed: {click}")
+                opened.append(
+                    {
+                        "rank": str(i + 1),
+                        "ok": "false",
+                        "detail": str(click),
+                    }
+                )
+                continue
+
+            await asyncio.sleep(2.0)
+            final_url = await current_url(browser_session, page)
+            matched = normalize_zehitomo_profile_url(final_url)
+            opened.append(
+                {
+                    "rank": str(i + 1),
+                    "text": str(click.get("text") or ""),
+                    "final": final_url,
+                    "matched": matched,
+                }
+            )
+            print(
+                f"[profile-url] #{i + 1} text={click.get('text')!r} "
+                f"final={final_url!r} matched={matched or '(no)'}"
+            )
+            if matched:
+                profile_url = matched
+                break
+
+        # 3) Go back to Zehitomo contractor/request page
+        try:
+            await page_goto(page, return_url, settle_s=1.5)
+        except Exception:
+            try:
+                await browser_session.navigate_to(return_url)
+                await asyncio.sleep(1.5)
+            except Exception:
+                pass
+
+        print(
+            f"[profile-url] done query={query!r} → "
+            f"{profile_url or '(none)'}"
+        )
+        return ActionResult(
+            extracted_content=json.dumps(
+                {
+                    "contractor_name": name,
+                    "search_query": query,
+                    "opened_results": opened,
+                    "url_to_access_to_contractor": profile_url,
+                    "return_url": return_url,
+                    "instruction": (
+                        "Already back on Zehitomo request page. "
+                        "Do NOT go_back. Continue with next contractor."
+                    ),
                 },
                 ensure_ascii=False,
             )
@@ -240,12 +629,25 @@ Flow:
    - click name at top of chat → details
    - get location; get phone/email from chat (empty string if missing)
    - call extract_current_contractor
+     → use its phone_number, email, and other_contractor_website_url
+       (other_contractor_website_url = ONLY links from chat messages,
+        not sidebar/header/footer; "" if none)
+   - call find_url_to_access_to_contractor with that contractor_name
+     → searches Google for: `{{contractor_name}} zehitomo`
+     → clicks the first two Google result links and checks for
+       zehitomo.com/profile/...
+     → use its url_to_access_to_contractor ("" if none match)
+     → tool already returns to the Zehitomo request page.
+       Do NOT use go_back. Do NOT open the homepage.
+       Continue with the NEXT contractor on the left list.
 9. Return structured result with:
    - postal_code = `{postal_code}`
    - service = 「{service_name}」
    - combination_id = `{combination_id}`
-   - contractors list
-Do not invent data.
+   - contractors list, each with:
+     contractor_name, location, phone_number, email,
+     url_to_access_to_contractor, other_contractor_website_url
+Do not invent data. Use "" when a field is missing.
 """
 
 
@@ -263,7 +665,23 @@ async def scrape_one(
     if not api_key:
         raise ValueError("Set GOOGLE_API_KEY in .env")
 
+    chrome = find_google_chrome()
+    if chrome is None:
+        raise FileNotFoundError(
+            "Google Chrome not found. Profiles from login_profile.py require "
+            "real Chrome (Playwright Chromium crashes on those profiles).\n"
+            "Install Chrome: https://www.google.com/chrome/"
+        )
+
+    removed = clear_stale_profile_locks(path)
+    if removed:
+        print(f"Cleared stale profile locks: {', '.join(removed)}")
+
+    # Must use real Google Chrome — login_profile.py wrote this user-data-dir
+    # with Chrome. browser-use defaults to Playwright Chromium, which then
+    # exits immediately → CDP ReadError / RemoteProtocolError.
     browser = Browser(
+        executable_path=str(chrome),
         user_data_dir=str(path),
         headless=False,
         keep_alive=True,
@@ -373,13 +791,15 @@ async def run(
     if not selected:
         raise ValueError("No combinations selected to scrape.")
 
+    chrome = find_google_chrome()
     print(f"Profile     : {profile} ({path.resolve()})")
+    print(f"Chrome      : {chrome.resolve() if chrome else '(missing!)'}")
     print(f"Options     : {options_path.resolve()}")
     print(f"Service     : {service_name}")
     print(f"Service URL : {service_url}")
     print(f"Combinations: {[k for k, _ in selected]}")
     print(f"Output      : {output.resolve()}")
-    print("Quit Chrome using this profile before starting.")
+    print("Quit Chrome using this profile before starting (Cmd+Q).")
     print("Ctrl+C to stop early.\n")
 
     runs: list[dict] = []

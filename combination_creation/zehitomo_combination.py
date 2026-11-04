@@ -18,13 +18,21 @@ Output shape:
 }
 
 Usage (from repo root, with Chrome profile logged in):
+    # resume by default if combinations already exist
     python combination_creation/zehitomo_combination.py
+
+    # one service — continues from combination{N+1} if N already saved
+    python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム
+    
+
+    # wipe and restart from combination1
+    python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム --force
 """
 
 from __future__ import annotations
 
+import argparse
 import json
-import time
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -75,6 +83,40 @@ def load_targets(path=SECTIONS_FILE):
     return targets
 
 
+def filter_targets(
+    targets: list[tuple[str, str]],
+    service_names: list[str] | None,
+) -> list[tuple[str, str]]:
+    """Keep only services whose name matches one of service_names (exact)."""
+    if not service_names:
+        return targets
+
+    wanted = list(dict.fromkeys(service_names))  # preserve order, unique
+    by_name = {name: url for name, url in targets}
+    selected: list[tuple[str, str]] = []
+    missing: list[str] = []
+    for name in wanted:
+        if name in by_name:
+            selected.append((name, by_name[name]))
+        else:
+            missing.append(name)
+
+    if missing:
+        # Suggest close matches for typos / partial names
+        hints: list[str] = []
+        for needle in missing:
+            close = [n for n, _ in targets if needle in n]
+            if close:
+                hints.append(f"  '{needle}' — similar: {', '.join(close[:5])}")
+            else:
+                hints.append(f"  '{needle}' — no similar name in sections.json")
+        raise KeyError(
+            "Service not found in sections.json:\n"
+            + "\n".join(hints)
+        )
+    return selected
+
+
 def load_options(path=OPTIONS_FILE):
     path = Path(path)
     if not path.exists() or path.stat().st_size == 0:
@@ -106,10 +148,36 @@ def next_combination_key(service_data: dict) -> str:
     return f"combination{n}"
 
 
-def add_combination(data: dict, service_name: str, steps: list[dict], postal_code: str):
+def combination_count(service_data: dict) -> int:
+    return sum(1 for k in service_data if k.startswith("combination"))
+
+
+def existing_answer_tuples(service_data: dict) -> set[tuple]:
+    seen: set[tuple] = set()
+    for key, value in service_data.items():
+        if not key.startswith("combination") or not isinstance(value, dict):
+            continue
+        answers = value.get("answers")
+        if isinstance(answers, list):
+            seen.add(tuple(answers))
+    return seen
+
+
+def add_combination(
+    data: dict,
+    service_name: str,
+    steps: list[dict],
+    postal_code: str,
+    *,
+    seen_answers: set[tuple] | None = None,
+) -> str | None:
     service = data.setdefault(service_name, {})
-    key = next_combination_key(service)
     answers = [s["select"] for s in steps] + [postal_code]
+    answer_key = tuple(answers)
+    if seen_answers is not None and answer_key in seen_answers:
+        return None
+
+    key = next_combination_key(service)
     full_steps = list(steps) + [
         {
             "label": "郵便番号を入力して「プロを見る」",
@@ -121,6 +189,8 @@ def add_combination(data: dict, service_name: str, steps: list[dict], postal_cod
         "steps": full_steps,
         "postal_code": postal_code,
     }
+    if seen_answers is not None:
+        seen_answers.add(answer_key)
     save_options(data)
     print(f"  {key}: {' > '.join(answers)}")
     return key
@@ -234,10 +304,22 @@ def back(root, page):
     return True
 
 
-def walk(root, page, data, service_name, steps, depth=0):
+def walk(
+    root,
+    page,
+    data,
+    service_name,
+    steps,
+    depth=0,
+    *,
+    resume_state: dict | None = None,
+):
     """DFS all radio/button choices; at address step, record each postal as a combination."""
     if depth > 20 or is_email_step(root):
         return
+
+    if resume_state is None:
+        resume_state = {"skip_leaves": 0, "seen_answers": set()}
 
     options = get_page_options(root)
 
@@ -250,34 +332,148 @@ def walk(root, page, data, service_name, steps, depth=0):
             if kind != "button" and not advance_form(root, page):
                 continue
             next_steps = steps + [{"label": heading, "select": option}]
-            walk(root, page, data, service_name, next_steps, depth + 1)
+            walk(
+                root,
+                page,
+                data,
+                service_name,
+                next_steps,
+                depth + 1,
+                resume_state=resume_state,
+            )
             back(root, page)
         return
 
     if is_address_step(root):
         # Record combinations only — do not submit 「プロを見る」 for every path
         for code in POSTAL_CODES:
-            add_combination(data, service_name, steps, code)
+            if resume_state["skip_leaves"] > 0:
+                resume_state["skip_leaves"] -= 1
+                left = resume_state["skip_leaves"]
+                print(
+                    f"  resume skip leaf "
+                    f"({' > '.join(s['select'] for s in steps)} > {code})"
+                    f" — {left} already-saved leaf(s) left to skip"
+                )
+                continue
+            add_combination(
+                data,
+                service_name,
+                steps,
+                code,
+                seen_answers=resume_state["seen_answers"],
+            )
         return
 
     if advance_form(root, page):
-        walk(root, page, data, service_name, steps, depth + 1)
+        walk(
+            root,
+            page,
+            data,
+            service_name,
+            steps,
+            depth + 1,
+            resume_state=resume_state,
+        )
         back(root, page)
 
 
-def explore_target(page, name, url, data):
-    # Fresh list for this service (keeps other services already saved)
-    data[name] = {"service_url": url}
+def explore_target(page, name, url, data, *, force: bool = False):
+    """
+    Explore one service form.
+
+    force=False (default): keep existing combinations and resume DFS, skipping
+    the first N address leaves already saved so new ones continue as
+    combination{N+1}, combination{N+2}, ...
+    force=True: wipe this service and start from combination1.
+    """
+    prior = 0
+    if not force and isinstance(data.get(name), dict):
+        prior = combination_count(data[name])
+
+    if force or prior == 0:
+        data[name] = {"service_url": url}
+        skip_leaves = 0
+        seen_answers: set[tuple] = set()
+        if force and prior:
+            print(f"  Force refresh: cleared {prior} old combinations")
+        print(f"  Starting from combination1")
+    else:
+        data[name]["service_url"] = url
+        skip_leaves = prior
+        seen_answers = existing_answer_tuples(data[name])
+        print(
+            f"  Resuming: keeping {prior} combinations, "
+            f"next new save will be combination{prior + 1}"
+        )
+        print(
+            "  (Browser still walks earlier paths, but does not re-save them.)"
+        )
+
+    save_options(data)
     root = open_form(page, url)
-    walk(root, page, data, name, [], 0)
+    walk(
+        root,
+        page,
+        data,
+        name,
+        [],
+        0,
+        resume_state={"skip_leaves": skip_leaves, "seen_answers": seen_answers},
+    )
     save_options(data)
 
 
-def main():
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Explore Zehitomo request forms and save questionnaire "
+            "combinations to options.json."
+        )
+    )
+    parser.add_argument(
+        "--service",
+        action="append",
+        dest="services",
+        default=None,
+        metavar="NAME",
+        help=(
+            "Only explore this service name from sections.json "
+            "(repeatable). Example: "
+            "--service お風呂・浴室の修理・リフォーム"
+        ),
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help=(
+            "Wipe existing combinations for the service and restart "
+            "from combination1 (default is resume from next)"
+        ),
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+
     ensure_files()
     targets = load_targets()
-    print(f"Loaded {len(targets)} services from {SECTIONS_FILE}")
-    print(f"Writing combinations to {OPTIONS_FILE}")
+    try:
+        targets = filter_targets(targets, args.services)
+    except KeyError as e:
+        print(e)
+        raise SystemExit(1) from e
+
+    if not targets:
+        print("No services to explore.")
+        raise SystemExit(1)
+
+    print(f"Services    : {len(targets)}")
+    for name, url in targets:
+        print(f"  - {name} ({url})")
+    print(f"Writing to  : {OPTIONS_FILE.resolve()}")
+    print(f"Force       : {args.force}")
 
     with sync_playwright() as p:
         context = launch_browser(p)
@@ -294,16 +490,22 @@ def main():
         save_options(data)
 
         for index, (name, url) in enumerate(targets, start=1):
-            if name in data and any(
-                k.startswith("combination") for k in data[name]
-            ):
-                print(f"Skip {index}/{len(targets)} (already done): {name}")
-                continue
-            print(f"Exploring {index}/{len(targets)}: {name} ({url})")
-            explore_target(page, name, url, data)
-            count = sum(
-                1 for k in data.get(name, {}) if k.startswith("combination")
+            prior = (
+                combination_count(data[name])
+                if isinstance(data.get(name), dict)
+                else 0
             )
+            mode = (
+                "force"
+                if args.force
+                else ("resume" if prior else "fresh")
+            )
+            print(
+                f"Exploring {index}/{len(targets)} [{mode}]: "
+                f"{name} ({url})"
+            )
+            explore_target(page, name, url, data, force=args.force)
+            count = combination_count(data.get(name, {}))
             print(f"  -> {count} combinations saved for {name}")
 
         print(f"Done. Saved -> {OPTIONS_FILE}")

@@ -1,41 +1,35 @@
 {
   "profile": "azimon",
-  "service": "エアコンクリーニング",
-  "service_url": "https://www.zehitomo.com/home/cleaning/electronics-cleaning/air-conditioner-cleaner",
-  "options_file": "/Users/mdalamintokder/zehitomo_new/combination_creation/options.json",
+  "service": "電気屋・電気工事",
+  "service_url": "https://www.zehitomo.com/home/repair-exchange-set/electrical/electrical-construction",
+  "options_file": "/Users/alamin/zehitomo_new/combination_creation/options.json",
   "combinations_done": [
     "combination1"
   ],
   "contractors": [
     {
-      "contractor_name": "冨樫さん",
-      "location": "東京都江戸川区西一之江",
-      "phone_number": "",
-      "email": ""
+      "contractor_name": "ユアハンディマンさん",
+      "location": "東京都杉並区阿佐谷北",
+      "phone_number": "09033955536",
+      "email": "handyman.ishikawa@gmail.com",
+      "url_to_access_to_contractor": "",
+      "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
     },
     {
-      "contractor_name": "飯野さん",
-      "location": "東京都足立区新田",
+      "contractor_name": "株式会社MY CREWさん",
+      "location": "静岡県静岡市-葵区沓谷",
       "phone_number": "",
-      "email": ""
+      "email": "",
+      "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BEmy-crew-fAoMNpmnk/pro",
+      "other_contractor_website_url": ""
     },
     {
-      "contractor_name": "下田さん",
-      "location": "東京都西東京市富士町",
+      "contractor_name": "プライムワークスさん",
+      "location": "東京都調布市国領町",
       "phone_number": "",
-      "email": ""
-    },
-    {
-      "contractor_name": "株式会社マンキャピタルさん",
-      "location": "東京都豊島区東池袋",
-      "phone_number": "",
-      "email": ""
-    },
-    {
-      "contractor_name": "ゆりくっすさん",
-      "location": "神奈川県横浜市神奈川区金港町",
-      "phone_number": "",
-      "email": ""
+      "email": "",
+      "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E9%BD%8A%E8%97%A4-%E4%BF%AE-OdXV6R6iu/pro",
+      "other_contractor_website_url": ""
     }
   ],
   "runs": [
@@ -43,47 +37,40 @@
       "combination_id": "combination1",
       "answers": [
         "戸建タイプ",
+        "1～5年",
         "可能な限り早く",
-        "家庭用",
+        "コンセント工事",
         "駐車場あり（無料）",
-        "1台",
-        "いない",
         "182-0004"
       ],
-      "finished_at": "2026-11-03T08:08:26.778259+00:00",
+      "finished_at": "2026-11-04T12:28:44.842949+00:00",
       "postal_code": "182-0004",
-      "service": "エアコンクリーニング",
+      "service": "電気屋・電気工事",
       "profile": "azimon",
       "contractors": [
         {
-          "contractor_name": "冨樫さん",
-          "location": "東京都江戸川区西一之江",
-          "phone_number": "",
-          "email": ""
+          "contractor_name": "ユアハンディマンさん",
+          "location": "東京都杉並区阿佐谷北",
+          "phone_number": "09033955536",
+          "email": "handyman.ishikawa@gmail.com",
+          "url_to_access_to_contractor": "",
+          "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
         },
         {
-          "contractor_name": "飯野さん",
-          "location": "東京都足立区新田",
+          "contractor_name": "株式会社MY CREWさん",
+          "location": "静岡県静岡市-葵区沓谷",
           "phone_number": "",
-          "email": ""
+          "email": "",
+          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BEmy-crew-fAoMNpmnk/pro",
+          "other_contractor_website_url": ""
         },
         {
-          "contractor_name": "下田さん",
-          "location": "東京都西東京市富士町",
+          "contractor_name": "プライムワークスさん",
+          "location": "東京都調布市国領町",
           "phone_number": "",
-          "email": ""
-        },
-        {
-          "contractor_name": "株式会社マンキャピタルさん",
-          "location": "東京都豊島区東池袋",
-          "phone_number": "",
-          "email": ""
-        },
-        {
-          "contractor_name": "ゆりくっすさん",
-          "location": "神奈川県横浜市神奈川区金港町",
-          "phone_number": "",
-          "email": ""
+          "email": "",
+          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E9%BD%8A%E8%97%A4-%E4%BF%AE-OdXV6R6iu/pro",
+          "other_contractor_website_url": ""
         }
       ]
     }

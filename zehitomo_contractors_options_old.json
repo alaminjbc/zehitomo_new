@@ -1,0 +1,81 @@
+{
+  "profile": "azimon",
+  "service": "フロアクリーニング",
+  "service_url": "https://www.zehitomo.com/home/cleaning/floor-cleaning/floor-cleaner",
+  "options_file": "/Users/alamin/zehitomo_new/combination_creation/options.json",
+  "combinations_done": [
+    "combination1"
+  ],
+  "contractors": [
+    {
+      "contractor_name": "Sola Create 株式会社",
+      "location": "東京都練馬区大泉学園町",
+      "phone_number": "",
+      "email": "",
+      "url_to_access_to_contractor": "",
+      "other_contractor_website_url": ""
+    },
+    {
+      "contractor_name": "関東環境技術",
+      "location": "東京都豊島区高田",
+      "phone_number": "",
+      "email": "",
+      "url_to_access_to_contractor": "",
+      "other_contractor_website_url": ""
+    },
+    {
+      "contractor_name": "R'N",
+      "location": "東京都武蔵村山市大南",
+      "phone_number": "",
+      "email": "",
+      "url_to_access_to_contractor": "",
+      "other_contractor_website_url": ""
+    }
+  ],
+  "runs": [
+    {
+      "combination_id": "combination1",
+      "answers": [
+        "戸建タイプ",
+        "1～5年",
+        "可能な限り早く",
+        "～6帖未満",
+        "駐車場あり（無料）",
+        "フローリング（木製）",
+        "コーティング・ワックスあり（または要確認）",
+        "いない",
+        "182-0004"
+      ],
+      "finished_at": "2026-11-04T05:24:51.890624+00:00",
+      "postal_code": "182-0004",
+      "service": "フロアクリーニング",
+      "profile": "azimon",
+      "contractors": [
+        {
+          "contractor_name": "Sola Create 株式会社",
+          "location": "東京都練馬区大泉学園町",
+          "phone_number": "",
+          "email": "",
+          "url_to_access_to_contractor": "",
+          "other_contractor_website_url": ""
+        },
+        {
+          "contractor_name": "関東環境技術",
+          "location": "東京都豊島区高田",
+          "phone_number": "",
+          "email": "",
+          "url_to_access_to_contractor": "",
+          "other_contractor_website_url": ""
+        },
+        {
+          "contractor_name": "R'N",
+          "location": "東京都武蔵村山市大南",
+          "phone_number": "",
+          "email": "",
+          "url_to_access_to_contractor": "",
+          "other_contractor_website_url": ""
+        }
+      ]
+    }
+  ]
+}
