@@ -9,7 +9,7 @@ Usage:
     python login_profile.py alice
 
 Profile is saved to: profiles/<name>/
-Later use the same name with run_scrape.py
+Later use the same name with: python -m app.main <name>
 """
 
 from __future__ import annotations
@@ -113,9 +113,9 @@ async def login(name: str) -> None:
     print("=" * 60)
     await wait_for_enter("\nPress ENTER after you quit Chrome: ")
     print(f"Profile saved under {path.resolve()}")
-    print(f"Next: python run_scrape.py {name}")
+    print(f"Next: python -m app.main {name} --service <service> --limit 1")
     print(
-        "\nImportant: Always quit Chrome before run_scrape.py "
+        "\nImportant: Always quit Chrome before python -m app.main "
         "(same profile folder cannot be open in two browsers)."
     )
 
