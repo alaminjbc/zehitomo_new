@@ -13,6 +13,7 @@ load_dotenv(ROOT / ".env")
 PROFILES_ROOT = ROOT / "profiles"
 OPTIONS_FILE = ROOT / "combination_creation" / "options.json"
 OUTPUT_FILE = ROOT / "output.json"
+MAIN_SHEET = ROOT / "zehitomo_main.csv"
 BASE_URL = "https://www.zehitomo.com"
 START_URL = f"{BASE_URL}/"
 MODEL = os.getenv("GOOGLE_MODEL", "gemini-3.6-flash")

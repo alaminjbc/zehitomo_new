@@ -19,6 +19,7 @@ from app.services.options import (
     load_options,
 )
 from app.services.prompt import build_task
+from app.services.sheet import append_contractors
 from app.services.tools import build_tools
 
 
@@ -222,6 +223,7 @@ async def run(
             "finished_at": datetime.now(timezone.utc).isoformat(),
             "extracted_contractors": data["contractors"],
         }
+        finished_at = combinations_done[combo_id]["finished_at"]
         write_output(
             output,
             profile=profile,
@@ -230,7 +232,16 @@ async def run(
             options_path=options_path,
             combinations_done=combinations_done,
         )
-        print(f"Saved {combo_id}: {len(data['contractors'])} contractors")
+        added = append_contractors(
+            data["contractors"],
+            service_name=service_name,
+            combination_id=combo_id,
+            finished_at=finished_at,
+        )
+        print(
+            f"Saved {combo_id}: {len(data['contractors'])} contractors, "
+            f"{added} new rows in zehitomo_main.csv"
+        )
 
         if index < total:
             print(f"Next combination in {PAUSE_BETWEEN}s...\n")

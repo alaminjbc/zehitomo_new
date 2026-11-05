@@ -32,7 +32,63 @@
         }
       ],
       "postal_code": "182-0004",
-      "finished_at": "2026-11-05T05:07:55.777766+00:00",
+      "finished_at": "2026-11-05T12:18:22.812130+00:00",
+      "extracted_contractors": [
+        {
+          "contractor_name": "プライムワークスさん",
+          "location": "東京都調布市",
+          "phone_number": "",
+          "email": "",
+          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/齊藤-修-OdXV6R6iu/pro",
+          "other_contractor_website_url": ""
+        },
+        {
+          "contractor_name": "ユアハンディマンさん",
+          "location": "東京都杉並区阿佐谷北",
+          "phone_number": "09033955536",
+          "email": "handyman.ishikawa@gmail.com",
+          "url_to_access_to_contractor": "",
+          "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+        },
+        {
+          "contractor_name": "株式会社MY CREWさん",
+          "location": "静岡県静岡市葵区沓谷",
+          "phone_number": "",
+          "email": "",
+          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+          "other_contractor_website_url": ""
+        }
+      ]
+    },
+    "combination2": {
+      "steps": [
+        {
+          "label": "建物のタイプは何ですか？",
+          "select": "戸建タイプ"
+        },
+        {
+          "label": "築何年ですか？",
+          "select": "1～5年"
+        },
+        {
+          "label": "いつ頃工事を始めたいですか？",
+          "select": "可能な限り早く"
+        },
+        {
+          "label": "どのような電気工事をご希望ですか？",
+          "select": "コンセント工事"
+        },
+        {
+          "label": "駐車スペースはございますか？",
+          "select": "駐車場あり（有料）"
+        },
+        {
+          "label": "郵便番号を入力して「プロを見る」",
+          "select": "182-0004"
+        }
+      ],
+      "postal_code": "182-0004",
+      "finished_at": "2026-11-05T12:25:41.384525+00:00",
       "extracted_contractors": [
         {
           "contractor_name": "プライムワークスさん",
@@ -47,12 +103,12 @@
           "location": "東京都杉並区阿佐谷北",
           "phone_number": "09033955536",
           "email": "handyman.ishikawa@gmail.com",
-          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/ユアハンディマン-zBKanibl_/pro",
+          "url_to_access_to_contractor": "https://www.zehitomo.com/profile/ユアハンディマン-zBKanibl_/pro/handyman",
           "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
         },
         {
           "contractor_name": "株式会社MY CREWさん",
-          "location": "静岡県静岡市-葵区沓谷",
+          "location": "静岡県静岡市葵区沓谷",
           "phone_number": "",
           "email": "",
           "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
