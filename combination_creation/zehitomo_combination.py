@@ -6,7 +6,6 @@ Output shape:
   "サービス名": {
     "service_url": "/home/...",
     "combination1": {
-      "answers": ["戸建タイプ", "...", "182-0004"],
       "steps": [
         {"label": "建物のタイプは何ですか？", "select": "戸建タイプ"},
         ...
@@ -24,7 +23,6 @@ Usage (from repo root, with Chrome profile logged in):
     # one service — continues from combination{N+1} if N already saved
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム
     
-
     # wipe and restart from combination1
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム --force
 """
@@ -152,10 +150,18 @@ def combination_count(service_data: dict) -> int:
     return sum(1 for k in service_data if k.startswith("combination"))
 
 
+def answers_from_steps(steps: list[dict]) -> list[str]:
+    return [str(step.get("select", "")) for step in steps]
+
+
 def existing_answer_tuples(service_data: dict) -> set[tuple]:
     seen: set[tuple] = set()
     for key, value in service_data.items():
         if not key.startswith("combination") or not isinstance(value, dict):
+            continue
+        steps = value.get("steps")
+        if isinstance(steps, list) and steps:
+            seen.add(tuple(answers_from_steps(steps)))
             continue
         answers = value.get("answers")
         if isinstance(answers, list):
@@ -172,20 +178,19 @@ def add_combination(
     seen_answers: set[tuple] | None = None,
 ) -> str | None:
     service = data.setdefault(service_name, {})
-    answers = [s["select"] for s in steps] + [postal_code]
-    answer_key = tuple(answers)
-    if seen_answers is not None and answer_key in seen_answers:
-        return None
-
-    key = next_combination_key(service)
     full_steps = list(steps) + [
         {
             "label": "郵便番号を入力して「プロを見る」",
             "select": postal_code,
         }
     ]
+    answers = answers_from_steps(full_steps)
+    answer_key = tuple(answers)
+    if seen_answers is not None and answer_key in seen_answers:
+        return None
+
+    key = next_combination_key(service)
     service[key] = {
-        "answers": answers,
         "steps": full_steps,
         "postal_code": postal_code,
     }

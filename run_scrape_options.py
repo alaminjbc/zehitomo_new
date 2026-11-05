@@ -6,7 +6,7 @@ Usage:
     python login_profile.py azimon
 
     # scrape first combination of エアコンクリーニング
-    python run_scrape_options.py azimon --service エアコンクリーニング --limit 1
+    python run_scrape_options.py alamin --service エアコンクリーニング --limit 1
     
 
     # scrape combination1 and combination2 only
@@ -163,13 +163,15 @@ def normalize_zehitomo_profile_url(url: str) -> str:
     real = _clean_url(_unwrap_google_href(url))
     m = ZEHITOMO_PROFILE_RE.search(real)
     if m:
-        return _clean_url(m.group(0))
+        # Decode %E9%BD%8A... so the saved URL shows Japanese characters.
+        return unquote(_clean_url(m.group(0)))
     # Also accept final browser URL path even if regex is picky
     try:
         parsed = urlparse(real)
         host = (parsed.hostname or "").lower()
         if host.endswith("zehitomo.com") and "/profile/" in (parsed.path or ""):
-            return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip()
+            path = unquote(parsed.path)
+            return f"{parsed.scheme}://{parsed.netloc}{path}".rstrip()
     except Exception:
         pass
     return ""
@@ -253,7 +255,7 @@ class Contractor(BaseModel):
         description=(
             "Zehitomo public profile URL "
             "(https://www.zehitomo.com/profile/...) found by Google-searching "
-            "contractor_name + ' zehitomo', opening the top 1-2 result links, "
+            "contractor_name + ' ゼヒトモ', opening the top 1-2 result links, "
             "and verifying the final page URL"
         ),
     )
@@ -358,6 +360,11 @@ def absolute_service_url(service_url: str) -> str:
     if not service_url.startswith("/"):
         service_url = "/" + service_url
     return BASE_URL + service_url
+
+
+def answers_from_steps(steps: list[dict]) -> list[str]:
+    """Selected values already live on each step; no separate answers list."""
+    return [str(step.get("select", "")) for step in steps]
 
 
 def format_steps_for_prompt(steps: list[dict]) -> str:
@@ -471,7 +478,7 @@ def build_tools() -> Tools:
         )
 
     @tools.action(
-        "Google-search \"{contractor_name} zehitomo\", click the first two "
+        "Google-search \"{contractor_name} ゼヒトモ\", click the first two "
         "result links, and return url_to_access_to_contractor if a page is "
         "https://www.zehitomo.com/profile/... "
         "Pass the exact contractor_name shown on Zehitomo. "
@@ -500,7 +507,7 @@ def build_tools() -> Tools:
         if "zehitomo.com" not in return_url.lower():
             return_url = return_url or START_URL
 
-        query = f"{name} zehitomo"
+        query = f"{name} ゼヒトモ"
         search_url = (
             "https://www.google.com/search?hl=ja&q=" + quote_plus(query)
         )
@@ -590,7 +597,7 @@ def build_task(
 ) -> str:
     postal_code = combination.get("postal_code", "")
     steps = combination.get("steps") or []
-    answers = combination.get("answers") or []
+    answers = answers_from_steps(steps)
     steps_text = format_steps_for_prompt(steps)
 
     return f"""
@@ -633,7 +640,7 @@ Flow:
        (other_contractor_website_url = ONLY links from chat messages,
         not sidebar/header/footer; "" if none)
    - call find_url_to_access_to_contractor with that contractor_name
-     → searches Google for: `{{contractor_name}} zehitomo`
+     → searches Google for: `{{contractor_name}} ゼヒトモ`
      → clicks the first two Google result links and checks for
        zehitomo.com/profile/...
      → use its url_to_access_to_contractor ("" if none match)
@@ -726,21 +733,30 @@ async def scrape_one(
         await browser.kill()
 
 
-def merge_unique(
-    existing: list[dict],
-    new_items: list[dict],
-) -> list[dict]:
-    seen = {
-        (c.get("contractor_name", ""), c.get("location", ""))
-        for c in existing
-    }
-    out = list(existing)
-    for item in new_items:
-        key = (item.get("contractor_name", ""), item.get("location", ""))
-        if key[0] and key not in seen:
-            seen.add(key)
-            out.append(item)
-    return out
+def write_output(
+    output: Path,
+    *,
+    profile: str,
+    service_name: str,
+    service_url: str,
+    options_path: Path,
+    combinations_done: dict[str, Any],
+) -> None:
+    output.write_text(
+        json.dumps(
+            {
+                "profile": profile,
+                "service": service_name,
+                "service_url": service_url,
+                "options_file": str(options_path),
+                "combinations_done": combinations_done,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 async def run(
@@ -802,14 +818,13 @@ async def run(
     print("Quit Chrome using this profile before starting (Cmd+Q).")
     print("Ctrl+C to stop early.\n")
 
-    runs: list[dict] = []
-    contractors: list[dict] = []
+    combinations_done: dict[str, Any] = {}
     total = len(selected)
 
     for index, (combo_id, combo) in enumerate(selected, start=1):
         print("=" * 60)
         print(f"{combo_id} ({index}/{total})")
-        print(f"answers: {combo.get('answers')}")
+        print(f"answers: {answers_from_steps(combo.get('steps') or [])}")
         print("=" * 60)
 
         try:
@@ -837,48 +852,38 @@ async def run(
             continue
 
         data = result.model_dump(mode="json", exclude_none=True)
-        runs.append(
-            {
-                "combination_id": combo_id,
-                "answers": combo.get("answers", []),
-                "finished_at": datetime.now(timezone.utc).isoformat(),
-                "postal_code": data["postal_code"],
-                "service": data["service"],
-                "profile": profile,
-                "contractors": data["contractors"],
-            }
-        )
-        contractors = merge_unique(contractors, data["contractors"])
-        output.write_text(
-            json.dumps(
-                {
-                    "profile": profile,
-                    "service": service_name,
-                    "service_url": service_url,
-                    "options_file": str(options_path),
-                    "combinations_done": [r["combination_id"] for r in runs],
-                    "contractors": contractors,
-                    "runs": runs,
-                },
-                ensure_ascii=False,
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
+        # Full combination from options.json, plus the contractors found for it.
+        # `runs` is not written: it repeated this same combination and contractor list.
+        combinations_done[combo_id] = {
+            "steps": combo.get("steps") or [],
+            "postal_code": combo.get("postal_code", data.get("postal_code", "")),
+            "finished_at": datetime.now(timezone.utc).isoformat(),
+            "extracted_contractors": data["contractors"],
+        }
+        write_output(
+            output,
+            profile=profile,
+            service_name=service_name,
+            service_url=service_url,
+            options_path=options_path,
+            combinations_done=combinations_done,
         )
         print(
             f"Saved {combo_id}: "
-            f"+{len(data['contractors'])} this run, "
-            f"{len(contractors)} unique total"
+            f"{len(data['contractors'])} contractors"
         )
 
         if index < total:
             print(f"Next combination in {PAUSE_BETWEEN}s...\n")
             await asyncio.sleep(PAUSE_BETWEEN)
 
+    contractor_count = sum(
+        len(item.get("extracted_contractors") or [])
+        for item in combinations_done.values()
+    )
     print(
-        f"\nDone. {len(runs)}/{total} combinations, "
-        f"{len(contractors)} unique contractors → {output.resolve()}"
+        f"\nDone. {len(combinations_done)}/{total} combinations, "
+        f"{contractor_count} contractors → {output.resolve()}"
     )
 
 
@@ -914,7 +919,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--output",
-        default="zehitomo_contractors_options.json",
+        default="output.json",
         help="Output JSON file",
     )
     args = parser.parse_args()
