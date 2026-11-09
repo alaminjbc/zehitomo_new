@@ -50,7 +50,7 @@ Flow:
 {steps_text}
 6. If captcha appears or 「プロを見る」 does nothing: call report_captcha and STOP.
 7. If 「前回の依頼を確認する」 and 「新しく依頼を出す」 appear,
-   click 「前回の依頼を確認する」. Then call wait_one_minute.
+   click 「新しく依頼を出す」. Then call wait_one_minute.
 8. For EVERY contractor in the left list:
    - click name → chat opens
    - click name at top of chat → details
@@ -60,8 +60,8 @@ Flow:
        (other_contractor_website_url = ONLY links from chat messages,
         not sidebar/header/footer; "" if none)
    - call find_url_to_access_to_contractor with that contractor_name
-     → searches Google for: `{{contractor_name}} ゼヒトモ`
-     → clicks the first two Google result links and checks for
+     → tool searches Google for: `name ゼヒトモ` (drops trailing さん)
+     → opens the first two organic Google result links and checks for
        zehitomo.com/profile/...
      → use its url_to_access_to_contractor ("" if none match)
      → tool already returns to the Zehitomo request page.

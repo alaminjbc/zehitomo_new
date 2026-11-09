@@ -4,7 +4,7 @@ Row 2 of the sheet is the English field map:
 
     date, company_or_contractor_name, address, phone_number, mail_address,
     url_to_access_to_contractor, other_contractor_website_url,
-    type_of_industry, memo, , , combination, , timestamp
+    type_of_industry, memo, , , combination, timestamp, profile
 """
 
 from __future__ import annotations
@@ -37,9 +37,9 @@ def sheet_date(finished_at: str = "") -> str:
     return datetime.now(timezone.utc).astimezone().strftime("%Y/%m/%d")
 
 
-def _existing_keys(path: Path) -> set[tuple[str, str, str]]:
-    """name + zehitomo url + combination already written."""
-    keys: set[tuple[str, str, str]] = set()
+def _existing_keys(path: Path) -> set[tuple[str, str, str, str]]:
+    """name + zehitomo url + combination + profile already written."""
+    keys: set[tuple[str, str, str, str]] = set()
     if not path.exists() or path.stat().st_size == 0:
         return keys
     with path.open(encoding="utf-8", newline="") as handle:
@@ -49,8 +49,9 @@ def _existing_keys(path: Path) -> set[tuple[str, str, str]]:
             name = strip_san(row[1])
             url = (row[5] or "").strip()
             combination = (row[11] or "").strip()
+            profile = (row[13] or "").strip() if len(row) > 13 else ""
             if name:
-                keys.add((name, url, combination))
+                keys.add((name, url, combination, profile))
     return keys
 
 
@@ -59,6 +60,7 @@ def append_contractors(
     *,
     service_name: str,
     combination_id: str,
+    profile: str = "",
     finished_at: str = "",
     sheet_path: Path = MAIN_SHEET,
 ) -> int:
@@ -74,7 +76,7 @@ def append_contractors(
         if not name:
             continue
         url = (contractor.get("url_to_access_to_contractor") or "").strip()
-        key = (name, url, combination_id)
+        key = (name, url, combination_id, profile)
         if key in seen:
             continue
         seen.add(key)
@@ -92,8 +94,8 @@ def append_contractors(
                 "",
                 "",
                 combination_id,
-                "",
                 finished_at,
+                profile,
             ]
         )
 

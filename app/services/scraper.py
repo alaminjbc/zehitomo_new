@@ -22,6 +22,27 @@ from app.services.prompt import build_task
 from app.services.sheet import append_contractors
 from app.services.tools import build_tools
 
+# Exit code used by rotation scripts when postal-code captcha blocks a profile.
+CAPTCHA_EXIT_CODE = 2
+
+
+class CaptchaDetected(RuntimeError):
+    """Raised when Zehitomo shows captcha; scripts should switch profile."""
+
+
+def load_combinations_done(output: Path, service_name: str) -> dict[str, Any]:
+    """Keep prior combinations for the same service across profile switches."""
+    if not output.exists() or output.stat().st_size == 0:
+        return {}
+    try:
+        data = json.loads(output.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    if data.get("service") != service_name:
+        return {}
+    done = data.get("combinations_done") or {}
+    return done if isinstance(done, dict) else {}
+
 
 def write_output(
     output: Path,
@@ -132,6 +153,7 @@ async def run(
     limit: int | None,
     options_path: Path,
     output: Path,
+    rerun: bool = False,
 ) -> None:
     path = profile_path(profile)
     if not path.exists():
@@ -169,8 +191,17 @@ async def run(
     if limit is not None:
         selected = selected[: max(0, limit)]
 
+    combinations_done = load_combinations_done(output, service_name)
+    if not rerun and combinations_done:
+        before = len(selected)
+        selected = [(k, v) for k, v in selected if k not in combinations_done]
+        skipped = before - len(selected)
+        if skipped:
+            print(f"Skipping {skipped} combination(s) already in {output.name}")
+
     if not selected:
-        raise ValueError("No combinations selected to scrape.")
+        print(f"Nothing left to scrape for '{service_name}' → {output.resolve()}")
+        return
 
     chrome = find_google_chrome()
     print(f"Profile     : {profile} ({path.resolve()})")
@@ -183,8 +214,8 @@ async def run(
     print("Quit Chrome using this profile before starting (Cmd+Q).")
     print("Ctrl+C to stop early.\n")
 
-    combinations_done: dict[str, Any] = {}
     total = len(selected)
+    captcha_hit = False
 
     for index, (combo_id, combo) in enumerate(selected, start=1):
         print("=" * 60)
@@ -211,19 +242,21 @@ async def run(
                     f"  python -m app.main other_name "
                     f"--service {service_name}"
                 )
+                captcha_hit = True
                 break
             print(f"Skipping to next combination in {PAUSE_BETWEEN}s...")
             await asyncio.sleep(PAUSE_BETWEEN)
             continue
 
         data = result.model_dump(mode="json", exclude_none=True)
+        finished_at = datetime.now(timezone.utc).isoformat()
         combinations_done[combo_id] = {
             "steps": combo.get("steps") or [],
             "postal_code": combo.get("postal_code", data.get("postal_code", "")),
-            "finished_at": datetime.now(timezone.utc).isoformat(),
+            "finished_at": finished_at,
+            "profile": profile,
             "extracted_contractors": data["contractors"],
         }
-        finished_at = combinations_done[combo_id]["finished_at"]
         write_output(
             output,
             profile=profile,
@@ -236,6 +269,7 @@ async def run(
             data["contractors"],
             service_name=service_name,
             combination_id=combo_id,
+            profile=profile,
             finished_at=finished_at,
         )
         print(
@@ -252,6 +286,8 @@ async def run(
         for item in combinations_done.values()
     )
     print(
-        f"\nDone. {len(combinations_done)}/{total} combinations, "
+        f"\nDone. {len(combinations_done)} combinations saved, "
         f"{contractor_count} contractors → {output.resolve()}"
     )
+    if captcha_hit:
+        raise CaptchaDetected("CAPTCHA_DETECTED")

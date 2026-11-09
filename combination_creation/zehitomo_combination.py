@@ -23,6 +23,7 @@ Usage (from repo root, with Chrome profile logged in):
     # one service — continues from combination{N+1} if N already saved
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム
     
+    
     # wipe and restart from combination1
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム --force
 """

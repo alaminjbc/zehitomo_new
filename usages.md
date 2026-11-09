@@ -54,7 +54,7 @@ python -m app.main alamin --service 電気屋・電気工事 \
 python -m app.main alamin --service 電気屋・電気工事
 ```
 
-Results are written to `output.json` after each combination. Each key under `combinations_done` is the full combination from `options.json` plus `extracted_contractors`.
+Results are written to `output.json` after each combination. Each key under `combinations_done` is the full combination from `options.json` plus `extracted_contractors` and the `profile` that ran it. Already-finished combinations are skipped unless you pass `--rerun`. Captcha exits with code `2` so rotation scripts can switch accounts.
 
 Optional flags:
 
@@ -62,4 +62,49 @@ Optional flags:
 python -m app.main alamin --service 電気屋・電気工事 --limit 1 \
   --options combination_creation/options.json \
   --output output.json
+```
+
+Finished contractors are also appended to `zehitomo_main.csv`.
+
+## 4. Experiment: profile switching
+
+Edit [`scripts/rotate_config.json`](scripts/rotate_config.json), then run one command. Already-done combinations in `output.json` are skipped.
+
+```json
+{
+  "mode": "batch",
+  "profiles": ["alamin", "azimon"],
+  "service": "電気屋・電気工事",
+  "options": "combination_creation/options.json",
+  "output": "output.json",
+  "batch_max": 6,
+  "batch_size": 3
+}
+```
+
+`mode` values:
+
+| mode | meaning |
+|---|---|
+| `round_robin` | Way-1: each combination uses the next profile |
+| `until_captcha` | Way-2: stay on a profile until captcha or `batch_max` |
+| `batch` | Way-3: each profile does `batch_size` combos, then rotate |
+
+```bash
+# uses mode + settings from rotate_config.json
+./scripts/run_rotate.sh
+
+# override mode for one run
+MODE=round_robin ./scripts/run_rotate.sh
+
+# optional: another config file
+./scripts/run_rotate.sh scripts/rotate_config.json
+```
+
+The individual scripts still work and also read the same JSON (CLI profile args override `profiles` if given):
+
+```bash
+./scripts/rotate_round_robin.sh
+./scripts/rotate_until_captcha.sh
+./scripts/rotate_batch.sh
 ```

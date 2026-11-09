@@ -11,12 +11,17 @@ from browser_use.tools.views import NoParamsAction
 from app.config import START_URL
 from app.services.browser import (
     CHAT_CONTENT_JS,
-    GOOGLE_CLICK_RESULT_JS,
+    GOOGLE_DISMISS_CONSENT_JS,
+    GOOGLE_TOP_RESULTS_JS,
     current_url,
     page_eval,
     page_goto,
 )
-from app.services.urls import extract_other_website_urls, normalize_zehitomo_profile_url
+from app.services.urls import (
+    extract_other_website_urls,
+    normalize_zehitomo_profile_url,
+    unwrap_google_href,
+)
 
 
 def build_tools() -> Tools:
@@ -109,9 +114,9 @@ def build_tools() -> Tools:
         )
 
     @tools.action(
-        "Google-search \"{contractor_name} ゼヒトモ\", click the first two "
-        "result links, and return url_to_access_to_contractor if a page is "
-        "https://www.zehitomo.com/profile/... "
+        "Google-search \"{contractor_name} ゼヒトモ\", open the first two "
+        "organic result links, and return url_to_access_to_contractor if a "
+        "page is https://www.zehitomo.com/profile/... "
         "Pass the exact contractor_name shown on Zehitomo. "
         "This tool returns to the Zehitomo request page when done — "
         "do NOT use go_back afterward."
@@ -133,51 +138,115 @@ def build_tools() -> Tools:
                 )
             )
 
+        # Sheet rule / Google: search without trailing 「さん」.
+        search_name = name[:-2].strip() if name.endswith("さん") else name
+
         page = await browser_session.get_current_page()
         return_url = await current_url(browser_session, page)
         if "zehitomo.com" not in return_url.lower():
             return_url = return_url or START_URL
 
-        query = f"{name} ゼヒトモ"
-        search_url = "https://www.google.com/search?hl=ja&q=" + quote_plus(query)
+        query = f"{search_name} ゼヒトモ"
+        search_url = "https://www.google.com/search?hl=ja&gl=jp&q=" + quote_plus(
+            query
+        )
 
         print(f"[profile-url] search: {query!r}")
-        await page_goto(page, search_url, settle_s=2.0)
+        await page_goto(page, search_url, settle_s=2.5)
+        consent = await page_eval(page, GOOGLE_DISMISS_CONSENT_JS)
+        if isinstance(consent, dict) and consent.get("clicked"):
+            print(f"[profile-url] dismissed Google consent: {consent}")
+            await asyncio.sleep(1.5)
+
+        serp = await page_eval(page, GOOGLE_TOP_RESULTS_JS)
+        results: list[dict] = []
+        if isinstance(serp, dict):
+            raw = serp.get("results") or []
+            if isinstance(raw, list):
+                results = [r for r in raw if isinstance(r, dict)]
+            print(
+                f"[profile-url] SERP count={serp.get('count')} "
+                f"titles={[r.get('title') for r in results[:2]]}"
+            )
+        else:
+            print(f"[profile-url] SERP parse failed: {serp!r}")
 
         profile_url = ""
         opened: list[dict[str, str]] = []
-        for i in range(2):
-            await page_goto(page, search_url, settle_s=1.5)
-            click = await page_eval(page, GOOGLE_CLICK_RESULT_JS, i)
-            if not isinstance(click, dict) or not click.get("ok"):
-                print(f"[profile-url] click #{i + 1} failed: {click}")
+
+        for i, result in enumerate(results[:2], start=1):
+            title = str(result.get("title") or "")
+            href = unwrap_google_href(str(result.get("href") or "").strip())
+            # Fast path: Google already shows the profile URL on the SERP.
+            matched = normalize_zehitomo_profile_url(href)
+            if matched:
                 opened.append(
                     {
-                        "rank": str(i + 1),
+                        "rank": str(i),
+                        "title": title,
+                        "href": href,
+                        "final": href,
+                        "matched": matched,
+                        "how": "serp_href",
+                    }
+                )
+                print(
+                    f"[profile-url] #{i} SERP href already profile: {matched}"
+                )
+                profile_url = matched
+                break
+
+            if not href.startswith("http"):
+                opened.append(
+                    {
+                        "rank": str(i),
+                        "title": title,
                         "ok": "false",
-                        "detail": str(click),
+                        "reason": "bad_href",
+                        "href": href,
                     }
                 )
                 continue
 
-            await asyncio.sleep(2.0)
+            print(f"[profile-url] #{i} open title={title!r} href={href!r}")
+            try:
+                await page_goto(page, href, settle_s=2.5)
+            except Exception as e:
+                opened.append(
+                    {
+                        "rank": str(i),
+                        "title": title,
+                        "href": href,
+                        "ok": "false",
+                        "reason": f"goto_failed:{type(e).__name__}",
+                    }
+                )
+                print(f"[profile-url] #{i} goto failed: {e}")
+                await page_goto(page, search_url, settle_s=1.5)
+                continue
+
             final_url = await current_url(browser_session, page)
             matched = normalize_zehitomo_profile_url(final_url)
             opened.append(
                 {
-                    "rank": str(i + 1),
-                    "text": str(click.get("text") or ""),
+                    "rank": str(i),
+                    "title": title,
+                    "href": href,
                     "final": final_url,
                     "matched": matched,
+                    "how": "opened",
                 }
             )
             print(
-                f"[profile-url] #{i + 1} text={click.get('text')!r} "
-                f"final={final_url!r} matched={matched or '(no)'}"
+                f"[profile-url] #{i} final={final_url!r} "
+                f"matched={matched or '(no)'}"
             )
             if matched:
                 profile_url = matched
                 break
+
+            # Back to SERP before trying the next result.
+            await page_goto(page, search_url, settle_s=1.5)
 
         try:
             await page_goto(page, return_url, settle_s=1.5)

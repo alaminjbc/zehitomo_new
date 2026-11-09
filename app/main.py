@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import sys
 from pathlib import Path
 
 from app.config import OPTIONS_FILE, OUTPUT_FILE
-from app.services.scraper import run
+from app.services.scraper import CAPTCHA_EXIT_CODE, CaptchaDetected, run
 
 
 def main() -> None:
@@ -43,18 +44,27 @@ def main() -> None:
         default=str(OUTPUT_FILE),
         help="Output JSON file",
     )
+    parser.add_argument(
+        "--rerun",
+        action="store_true",
+        help="Re-scrape combinations even if already present in the output file",
+    )
     args = parser.parse_args()
 
-    asyncio.run(
-        run(
-            profile=args.profile,
-            service_name=args.service,
-            combination_keys=args.combinations,
-            limit=args.limit,
-            options_path=Path(args.options),
-            output=Path(args.output),
+    try:
+        asyncio.run(
+            run(
+                profile=args.profile,
+                service_name=args.service,
+                combination_keys=args.combinations,
+                limit=args.limit,
+                options_path=Path(args.options),
+                output=Path(args.output),
+                rerun=args.rerun,
+            )
         )
-    )
+    except CaptchaDetected:
+        sys.exit(CAPTCHA_EXIT_CODE)
 
 
 if __name__ == "__main__":

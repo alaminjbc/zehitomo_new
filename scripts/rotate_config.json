@@ -1,0 +1,10 @@
+{
+  "mode": "batch",
+  "profiles": ["alamin", "azimon"],
+  "service": "電気屋・電気工事",
+  "options": "combination_creation/options.json",
+  "output": "output.json",
+  "batch_max": 6,
+  "batch_size": 3,
+  "python": ""
+}

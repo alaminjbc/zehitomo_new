@@ -10,26 +10,53 @@ from typing import Any
 
 from app.config import PROFILE_LOCK_NAMES, PROFILES_ROOT
 
-GOOGLE_CLICK_RESULT_JS = """
-(index) => {
-  const h3s = Array.from(document.querySelectorAll('h3'));
-  if (index < 0 || index >= h3s.length) {
-    return { ok: false, reason: 'no_result', count: h3s.length };
+# Organic Google results: anchors that wrap an h3 title inside #search / #rso.
+GOOGLE_TOP_RESULTS_JS = """
+() => {
+  const root =
+    document.querySelector('#search') ||
+    document.querySelector('#rso') ||
+    document.querySelector('#center_col') ||
+    document.body;
+  const results = [];
+  const seen = new Set();
+  for (const a of root.querySelectorAll('a[href]')) {
+    const h3 = a.querySelector('h3');
+    if (!h3) continue;
+    const href = (a.href || '').trim();
+    if (!href || !href.startsWith('http')) continue;
+    const lower = href.toLowerCase();
+    if (lower.includes('google.') && !lower.includes('/url?')) continue;
+    if (lower.includes('accounts.google')) continue;
+    if (lower.includes('support.google')) continue;
+    if (seen.has(href)) continue;
+    seen.add(href);
+    results.push({
+      title: (h3.innerText || '').trim().slice(0, 160),
+      href: href,
+    });
+    if (results.length >= 5) break;
   }
-  const h3 = h3s[index];
-  let a = h3.querySelector('a[href]') || h3.closest('a');
-  if (!a) {
-    let p = h3.parentElement;
-    for (let i = 0; i < 5 && p; i++) {
-      a = p.querySelector('a[href]');
-      if (a) break;
-      p = p.parentElement;
+  return {
+    count: results.length,
+    results: results,
+    url: location.href,
+  };
+}
+"""
+
+GOOGLE_DISMISS_CONSENT_JS = """
+() => {
+  const texts = ['同意する', 'すべて承認', 'I agree', 'Accept all', 'Accept'];
+  const buttons = Array.from(document.querySelectorAll('button, input[type="submit"]'));
+  for (const text of texts) {
+    const btn = buttons.find((el) => (el.innerText || el.value || '').includes(text));
+    if (btn) {
+      btn.click();
+      return { clicked: true, text: text };
     }
   }
-  if (!a) return { ok: false, reason: 'no_link', text: (h3.innerText || '').trim() };
-  try { a.setAttribute('target', '_self'); } catch (e) {}
-  a.click();
-  return { ok: true, text: (h3.innerText || '').trim().slice(0, 120) };
+  return { clicked: false };
 }
 """
 
