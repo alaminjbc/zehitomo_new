@@ -30,17 +30,85 @@ class CaptchaDetected(RuntimeError):
     """Raised when Zehitomo shows captcha; scripts should switch profile."""
 
 
-def load_combinations_done(output: Path, service_name: str) -> dict[str, Any]:
-    """Keep prior combinations for the same service across profile switches."""
+def _mentions_captcha(*parts: Any) -> bool:
+    return any(part is not None and "CAPTCHA" in str(part).upper() for part in parts)
+
+
+def history_has_captcha(history: Any) -> bool:
+    """True if the agent hit report_captcha / CAPTCHA_DETECTED during the run."""
+    try:
+        names = history.action_names() or []
+        if any("captcha" in str(name).lower() for name in names):
+            return True
+    except Exception:
+        pass
+    try:
+        if any(_mentions_captcha(err) for err in (history.errors() or []) if err):
+            return True
+    except Exception:
+        pass
+    try:
+        if any(
+            _mentions_captcha(item)
+            for item in (history.extracted_content() or [])
+            if item
+        ):
+            return True
+    except Exception:
+        pass
+    try:
+        if _mentions_captcha(history.final_result()):
+            return True
+    except Exception:
+        pass
+    try:
+        if _mentions_captcha(history.judgement()):
+            return True
+    except Exception:
+        pass
+    return False
+
+
+def load_output_document(output: Path) -> dict[str, Any]:
+    """Load output.json, migrating the old single-service shape if needed."""
+    empty: dict[str, Any] = {"options_file": "", "services": {}}
     if not output.exists() or output.stat().st_size == 0:
-        return {}
+        return empty
     try:
         data = json.loads(output.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
-        return {}
-    if data.get("service") != service_name:
-        return {}
-    done = data.get("combinations_done") or {}
+        return empty
+    if not isinstance(data, dict):
+        return empty
+
+    services = data.get("services")
+    if isinstance(services, dict):
+        return {
+            "options_file": str(data.get("options_file") or ""),
+            "services": services,
+        }
+
+    # Legacy flat file: one service at the top level.
+    legacy_service = data.get("service")
+    if legacy_service:
+        return {
+            "options_file": str(data.get("options_file") or ""),
+            "services": {
+                str(legacy_service): {
+                    "service_url": data.get("service_url", ""),
+                    "last_profile": data.get("profile", ""),
+                    "combinations_done": data.get("combinations_done") or {},
+                }
+            },
+        }
+    return empty
+
+
+def load_combinations_done(output: Path, service_name: str) -> dict[str, Any]:
+    """Combinations already finished for this service (other services kept intact)."""
+    doc = load_output_document(output)
+    service_block = doc.get("services", {}).get(service_name) or {}
+    done = service_block.get("combinations_done") or {}
     return done if isinstance(done, dict) else {}
 
 
@@ -53,19 +121,20 @@ def write_output(
     options_path: Path,
     combinations_done: dict[str, Any],
 ) -> None:
+    """Merge this service into output.json without wiping other services."""
+    doc = load_output_document(output)
+    services = doc.setdefault("services", {})
+    services[service_name] = {
+        "service_url": service_url,
+        "last_profile": profile,
+        "combinations_done": combinations_done,
+    }
+    payload = {
+        "options_file": str(options_path),
+        "services": services,
+    }
     output.write_text(
-        json.dumps(
-            {
-                "profile": profile,
-                "service": service_name,
-                "service_url": service_url,
-                "options_file": str(options_path),
-                "combinations_done": combinations_done,
-            },
-            ensure_ascii=False,
-            indent=2,
-        )
-        + "\n",
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
 
@@ -134,12 +203,35 @@ async def scrape_one(
         if result is None:
             final = history.final_result()
             if not final:
+                if history_has_captcha(history):
+                    raise CaptchaDetected("CAPTCHA_DETECTED")
                 raise RuntimeError("No result (captcha or page not reached)")
-            if "CAPTCHA" in str(final).upper():
-                raise RuntimeError("CAPTCHA_DETECTED")
-            result = ScrapingResult.model_validate_json(final)
+            if _mentions_captcha(final) and "contractors" not in str(final).lower():
+                raise CaptchaDetected("CAPTCHA_DETECTED")
+            try:
+                result = ScrapingResult.model_validate_json(final)
+            except Exception:
+                if history_has_captcha(history):
+                    raise CaptchaDetected("CAPTCHA_DETECTED") from None
+                raise
+
         if not result.combination_id:
             result.combination_id = combination_id
+
+        # Agent sometimes calls report_captcha then continues and still
+        # extracts contractors. Keep real results; only fail empty captcha runs.
+        usable = [
+            c
+            for c in (result.contractors or [])
+            if (c.contractor_name or "").strip()
+        ]
+        if history_has_captcha(history) and not usable:
+            raise CaptchaDetected("CAPTCHA_DETECTED")
+        if history_has_captcha(history) and usable:
+            print(
+                f"[captcha] report_captcha was called earlier, but "
+                f"{len(usable)} contractor(s) were still extracted — saving them"
+            )
         return result
     finally:
         await browser.kill()
@@ -233,14 +325,22 @@ async def run(
                 index=index,
                 total=total,
             )
+        except CaptchaDetected as e:
+            print(f"{combo_id} captcha: {e}")
+            print(
+                "Captcha hit — combination NOT saved. "
+                "Switch profile and retry the same combination:\n"
+                f"  python -m app.main other_name --service {service_name} "
+                f"--combination {combo_id}"
+            )
+            captcha_hit = True
+            break
         except Exception as e:
             print(f"{combo_id} failed: {type(e).__name__}: {e}")
-            if "CAPTCHA" in str(e).upper():
+            if _mentions_captcha(e):
                 print(
-                    "Captcha hit. Stop this profile and switch account:\n"
-                    f"  python login_profile.py other_name\n"
-                    f"  python -m app.main other_name "
-                    f"--service {service_name}"
+                    "Captcha hit — combination NOT saved. "
+                    "Switch profile and retry the same combination."
                 )
                 captcha_hit = True
                 break

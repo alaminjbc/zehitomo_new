@@ -54,7 +54,7 @@ python -m app.main alamin --service 電気屋・電気工事 \
 python -m app.main alamin --service 電気屋・電気工事
 ```
 
-Results are written to `output.json` after each combination. Each key under `combinations_done` is the full combination from `options.json` plus `extracted_contractors` and the `profile` that ran it. Already-finished combinations are skipped unless you pass `--rerun`. Captcha exits with code `2` so rotation scripts can switch accounts.
+Results are written to `output.json` after each combination. The file keeps **all services** under `services.<service_name>.combinations_done` (switching service in rotate config does not wipe earlier services). Each combination stores steps, `extracted_contractors`, and the `profile` that ran it. Already-finished combinations are skipped unless you pass `--rerun`. Captcha exits with code `2` and does **not** mark that combination done — rotation scripts retry the same combination on the next profile.
 
 Optional flags:
 

@@ -113,7 +113,13 @@ combos = [
 done = set()
 if output_path.exists() and output_path.stat().st_size:
     data = json.loads(output_path.read_text(encoding="utf-8"))
-    if data.get("service") == service:
+    # New multi-service shape: services.<name>.combinations_done
+    services = data.get("services")
+    if isinstance(services, dict) and service in services:
+        block = services.get(service) or {}
+        done = set((block.get("combinations_done") or {}).keys())
+    # Legacy single-service shape
+    elif data.get("service") == service:
         done = set((data.get("combinations_done") or {}).keys())
 
 for key in combos:
@@ -168,25 +174,47 @@ run_way_round_robin() {
     return 0
   fi
 
-  echo "Way-1 round-robin"
+  echo "Way-1 round-robin (on captcha: retry same combo with next profile)"
   echo "Pending  : ${pending[*]}"
 
   local n_profiles=${#PROFILES[@]}
-  local i=0
+  local profile_index=0
+  local pending_index=0
+  local wraps=0
   local combo profile status
-  for combo in "${pending[@]}"; do
-    profile="${PROFILES[$((i % n_profiles))]}"
+
+  while [[ "$pending_index" -lt "${#pending[@]}" ]]; do
+    if [[ "$wraps" -ge "$n_profiles" ]]; then
+      echo
+      echo "Every profile hit captcha on ${pending[$pending_index]}. Remaining:"
+      printf '  %s\n' "${pending[@]:$pending_index}"
+      return 1
+    fi
+
+    combo="${pending[$pending_index]}"
+    profile="${PROFILES[$((profile_index % n_profiles))]}"
+
     set +e
     run_combo "$profile" "$combo"
     status=$?
     set -e
+
     if [[ "$status" -eq "$CAPTCHA_EXIT" ]]; then
-      echo "Captcha on $profile during $combo — continuing with next profile/combo"
-    elif [[ "$status" -ne 0 ]]; then
-      echo "Failed ($status) on $profile / $combo — continuing"
+      echo "Captcha on $profile during $combo — retry same combo with next profile"
+      profile_index=$((profile_index + 1))
+      wraps=$((wraps + 1))
+      continue
     fi
-    i=$((i + 1))
+
+    wraps=0
+    pending_index=$((pending_index + 1))
+    profile_index=$((profile_index + 1))
+
+    if [[ "$status" -ne 0 ]]; then
+      echo "Failed ($status) on $profile / $combo — moving to next combo"
+    fi
   done
+
   echo
   echo "Way-1 finished."
 }
