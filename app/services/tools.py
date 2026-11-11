@@ -138,15 +138,12 @@ def build_tools() -> Tools:
                 )
             )
 
-        # Sheet rule / Google: search without trailing 「さん」.
-        search_name = name[:-2].strip() if name.endswith("さん") else name
-
         page = await browser_session.get_current_page()
         return_url = await current_url(browser_session, page)
         if "zehitomo.com" not in return_url.lower():
             return_url = return_url or START_URL
 
-        query = f"{search_name} ゼヒトモ"
+        query = f"{name} ゼヒトモ"
         search_url = "https://www.google.com/search?hl=ja&gl=jp&q=" + quote_plus(
             query
         )
@@ -160,12 +157,17 @@ def build_tools() -> Tools:
 
         serp = await page_eval(page, GOOGLE_TOP_RESULTS_JS)
         results: list[dict] = []
+        serp_profiles: list[dict] = []
         if isinstance(serp, dict):
             raw = serp.get("results") or []
             if isinstance(raw, list):
                 results = [r for r in raw if isinstance(r, dict)]
+            raw_profiles = serp.get("profiles") or []
+            if isinstance(raw_profiles, list):
+                serp_profiles = [r for r in raw_profiles if isinstance(r, dict)]
             print(
                 f"[profile-url] SERP count={serp.get('count')} "
+                f"profiles_on_serp={len(serp_profiles)} "
                 f"titles={[r.get('title') for r in results[:2]]}"
             )
         else:
@@ -174,79 +176,104 @@ def build_tools() -> Tools:
         profile_url = ""
         opened: list[dict[str, str]] = []
 
-        for i, result in enumerate(results[:2], start=1):
+        # Prefer a zehitomo profile link already visible on the SERP
+        # (e.g. クリーンデイ → /profile/三田村-様/pro).
+        for i, result in enumerate(serp_profiles[:3], start=1):
             title = str(result.get("title") or "")
             href = unwrap_google_href(str(result.get("href") or "").strip())
-            # Fast path: Google already shows the profile URL on the SERP.
             matched = normalize_zehitomo_profile_url(href)
-            if matched:
-                opened.append(
-                    {
-                        "rank": str(i),
-                        "title": title,
-                        "href": href,
-                        "final": href,
-                        "matched": matched,
-                        "how": "serp_href",
-                    }
-                )
-                print(
-                    f"[profile-url] #{i} SERP href already profile: {matched}"
-                )
-                profile_url = matched
-                break
-
-            if not href.startswith("http"):
-                opened.append(
-                    {
-                        "rank": str(i),
-                        "title": title,
-                        "ok": "false",
-                        "reason": "bad_href",
-                        "href": href,
-                    }
-                )
+            if not matched:
                 continue
-
-            print(f"[profile-url] #{i} open title={title!r} href={href!r}")
-            try:
-                await page_goto(page, href, settle_s=2.5)
-            except Exception as e:
-                opened.append(
-                    {
-                        "rank": str(i),
-                        "title": title,
-                        "href": href,
-                        "ok": "false",
-                        "reason": f"goto_failed:{type(e).__name__}",
-                    }
-                )
-                print(f"[profile-url] #{i} goto failed: {e}")
-                await page_goto(page, search_url, settle_s=1.5)
-                continue
-
-            final_url = await current_url(browser_session, page)
-            matched = normalize_zehitomo_profile_url(final_url)
             opened.append(
                 {
                     "rank": str(i),
                     "title": title,
                     "href": href,
-                    "final": final_url,
+                    "final": href,
                     "matched": matched,
-                    "how": "opened",
+                    "how": "serp_profile_link",
                 }
             )
             print(
-                f"[profile-url] #{i} final={final_url!r} "
-                f"matched={matched or '(no)'}"
+                f"[profile-url] SERP profile link #{i}: {matched}"
             )
-            if matched:
-                profile_url = matched
-                break
+            profile_url = matched
+            break
 
-            # Back to SERP before trying the next result.
-            await page_goto(page, search_url, settle_s=1.5)
+        # Otherwise open the first two organic results and verify the URL.
+        if not profile_url:
+            for i, result in enumerate(results[:2], start=1):
+                title = str(result.get("title") or "")
+                href = unwrap_google_href(str(result.get("href") or "").strip())
+                matched = normalize_zehitomo_profile_url(href)
+                if matched:
+                    opened.append(
+                        {
+                            "rank": str(i),
+                            "title": title,
+                            "href": href,
+                            "final": href,
+                            "matched": matched,
+                            "how": "serp_href",
+                        }
+                    )
+                    print(
+                        f"[profile-url] #{i} SERP href already profile: {matched}"
+                    )
+                    profile_url = matched
+                    break
+
+                if not href.startswith("http"):
+                    opened.append(
+                        {
+                            "rank": str(i),
+                            "title": title,
+                            "ok": "false",
+                            "reason": "bad_href",
+                            "href": href,
+                        }
+                    )
+                    continue
+
+                print(f"[profile-url] #{i} open title={title!r} href={href!r}")
+                try:
+                    await page_goto(page, href, settle_s=2.5)
+                except Exception as e:
+                    opened.append(
+                        {
+                            "rank": str(i),
+                            "title": title,
+                            "href": href,
+                            "ok": "false",
+                            "reason": f"goto_failed:{type(e).__name__}",
+                        }
+                    )
+                    print(f"[profile-url] #{i} goto failed: {e}")
+                    await page_goto(page, search_url, settle_s=1.5)
+                    continue
+
+                final_url = await current_url(browser_session, page)
+                matched = normalize_zehitomo_profile_url(final_url)
+                opened.append(
+                    {
+                        "rank": str(i),
+                        "title": title,
+                        "href": href,
+                        "final": final_url,
+                        "matched": matched,
+                        "how": "opened",
+                    }
+                )
+                print(
+                    f"[profile-url] #{i} final={final_url!r} "
+                    f"matched={matched or '(no)'}"
+                )
+                if matched:
+                    profile_url = matched
+                    break
+
+                # Back to SERP before trying the next result.
+                await page_goto(page, search_url, settle_s=1.5)
 
         try:
             await page_goto(page, return_url, settle_s=1.5)

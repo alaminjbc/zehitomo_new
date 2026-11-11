@@ -1,9 +1,9 @@
 {
-  "options_file": "/Users/alamin/zehitomo_new/combination_creation/options.json",
+  "options_file": "combination_creation/options.json",
   "services": {
-    "電気屋・電気工事": {
-      "service_url": "https://www.zehitomo.com/home/repair-exchange-set/electrical/electrical-construction",
-      "last_profile": "azimon",
+    "エアコンクリーニング": {
+      "service_url": "https://www.zehitomo.com/home/cleaning/electronics-cleaning/air-conditioner-cleaner",
+      "last_profile": "tasnia",
       "combinations_done": {
         "combination1": {
           "steps": [
@@ -12,20 +12,24 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "コンセント工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
               "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いない"
             },
             {
               "label": "郵便番号を入力して「プロを見る」",
@@ -33,30 +37,31 @@
             }
           ],
           "postal_code": "182-0004",
-          "finished_at": "2026-11-05T12:18:22.812130+00:00",
+          "finished_at": "2026-11-11T08:21:29.664371+00:00",
+          "profile": "azimon",
           "extracted_contractors": [
             {
-              "contractor_name": "プライムワークスさん",
-              "location": "東京都調布市",
+              "contractor_name": "桜井さん",
+              "location": "東京都西多摩郡-瑞穂町南平",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/齊藤-修-OdXV6R6iu/pro",
+              "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "ユアハンディマンさん",
-              "location": "東京都杉並区阿佐谷北",
-              "phone_number": "09033955536",
-              "email": "handyman.ishikawa@gmail.com",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
-            },
-            {
-              "contractor_name": "株式会社MY CREWさん",
-              "location": "静岡県静岡市葵区沓谷",
+              "contractor_name": "冨樫さん",
+              "location": "東京都江戸川区西一之江",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "便利屋 OGAWAさん",
+              "location": "東京都江戸川区本一色",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             }
           ]
@@ -68,51 +73,56 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "コンセント工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
-              "select": "駐車場あり（有料）"
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いない"
             },
             {
               "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
+              "select": "819-0022"
             }
           ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-05T12:25:41.384525+00:00",
+          "postal_code": "819-0022",
+          "finished_at": "2026-11-11T08:27:59.355574+00:00",
+          "profile": "tasnia",
           "extracted_contractors": [
             {
-              "contractor_name": "プライムワークスさん",
-              "location": "東京都調布市国領町",
+              "contractor_name": "米倉さん",
+              "location": "福岡県北九州市-小倉南区葛原東",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/齊藤-修-OdXV6R6iu/pro",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/米倉-竜次-fFLZ_NauU/pro",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "ユアハンディマンさん",
-              "location": "東京都杉並区阿佐谷北",
-              "phone_number": "09033955536",
-              "email": "handyman.ishikawa@gmail.com",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/ユアハンディマン-zBKanibl_/pro/handyman",
-              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
-            },
-            {
-              "contractor_name": "株式会社MY CREWさん",
-              "location": "静岡県静岡市葵区沓谷",
+              "contractor_name": "総合リフォームTec.sさん",
+              "location": "福岡県北九州市-八幡西区陣原",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/総合リフォームtec-s-_0MFE_nBl/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "エンキ合同会社さん",
+              "location": "福岡県福岡市-東区箱崎",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             }
           ]
@@ -124,53 +134,57 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "コンセント工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
-              "select": "駐車場なし"
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いない"
             },
             {
               "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
+              "select": "770-0004"
             }
           ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-09T05:09:27.728696+00:00",
-          "profile": "alamin",
+          "postal_code": "770-0004",
+          "finished_at": "2026-11-11T08:34:21.470597+00:00",
+          "profile": "mustakim",
           "extracted_contractors": [
             {
-              "contractor_name": "株式会社MY CREWさん",
-              "location": "静岡県静岡市-葵区沓谷",
+              "contractor_name": "ハウスクリーニング　brightさん",
+              "location": "徳島県徳島市丈六町（丈領）",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社bright-qywgBva_R/pro",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "プライムワークスさん",
-              "location": "東京都調布市国領町",
+              "contractor_name": "リプレイさん",
+              "location": "徳島県鳴門市大麻町板東（その他）",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/リプレイ-JQ9qFiPv-/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "YAMAドットコムさん",
+              "location": "徳島県板野郡-上板町西分",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
-            },
-            {
-              "contractor_name": "ユアハンディマンさん",
-              "location": "東京都杉並区阿佐谷北",
-              "phone_number": "09033955536",
-              "email": "handyman.ishikawa@gmail.com",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
             }
           ]
         },
@@ -181,49 +195,53 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "照明機器工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
               "select": "駐車場あり（無料）"
             },
             {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いない"
+            },
+            {
               "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
+              "select": "828-0031"
             }
           ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-09T05:44:47.859804+00:00",
-          "profile": "alamin",
+          "postal_code": "828-0031",
+          "finished_at": "2026-11-11T08:39:54.825824+00:00",
+          "profile": "azimon",
           "extracted_contractors": [
             {
-              "contractor_name": "株式会社REK住設さん",
-              "location": "東京都板橋区坂下",
-              "phone_number": "07017696543",
-              "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社rek住設-NMdqX9fNA/pro",
-              "other_contractor_website_url": ""
-            },
-            {
-              "contractor_name": "井上さん",
-              "location": "東京都東久留米市前沢",
+              "contractor_name": "田中さん",
+              "location": "福岡県糟屋郡-志免町吉原",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/guy-inoue/pro",
+              "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "システムさん",
-              "location": "東京都足立区東伊興",
+              "contractor_name": "FIX ROOMさん",
+              "location": "福岡県福岡市-博多区竹下",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "クリーンタイルさん",
+              "location": "福岡県嘉麻市飯田",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
@@ -238,20 +256,24 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "照明機器工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
-              "select": "駐車場あり（有料）"
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（犬・猫）"
             },
             {
               "label": "郵便番号を入力して「プロを見る」",
@@ -259,31 +281,31 @@
             }
           ],
           "postal_code": "182-0004",
-          "finished_at": "2026-11-09T11:37:37.070533+00:00",
-          "profile": "alamin",
+          "finished_at": "2026-11-11T08:47:13.491114+00:00",
+          "profile": "tasnia",
           "extracted_contractors": [
             {
-              "contractor_name": "山本電気さん",
-              "location": "東京都練馬区",
-              "phone_number": "",
-              "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/山本電気工事-SD4URAvhC/pro",
+              "contractor_name": "GRSさん",
+              "location": "東京都多摩市",
+              "phone_number": "08072040220",
+              "email": "daiking022@gmail.com",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/grs-2uvycMCr1/pro",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "システムさん",
-              "location": "東京都足立区東伊興",
+              "contractor_name": "ミトリックスＰＲＯさん",
+              "location": "東京都練馬区大泉町",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "井上さん",
-              "location": "東京都東久留米市前沢",
+              "contractor_name": "桜井さん",
+              "location": "東京都西多摩郡-瑞穂町南平",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/井上-JWlAOvYBq/pro",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/桜井-よしき-ZpS2dcsvL/pro",
               "other_contractor_website_url": ""
             }
           ]
@@ -295,53 +317,57 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "照明機器工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
-              "select": "駐車場なし"
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（犬・猫）"
             },
             {
               "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
+              "select": "819-0022"
             }
           ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-09T11:46:09.884825+00:00",
-          "profile": "azimon",
+          "postal_code": "819-0022",
+          "finished_at": "2026-11-11T08:56:27.611187+00:00",
+          "profile": "mustakim",
           "extracted_contractors": [
             {
-              "contractor_name": "株式会社REK住設さん",
-              "location": "東京都板橋区坂下",
-              "phone_number": "07017696543",
-              "email": "",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": ""
-            },
-            {
-              "contractor_name": "株式会社MY CREWさん",
-              "location": "",
+              "contractor_name": "EXTRAさん",
+              "location": "福岡県福岡市-東区唐原",
               "phone_number": "",
               "email": "",
-              "url_to_access_to_contractor": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/extra-j_24ghprX/pro",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "ユアハンディマンさん",
-              "location": "",
-              "phone_number": "09033955536",
-              "email": "handyman.ishikawa@gmail.com",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+              "contractor_name": "株式会社Glanzさん",
+              "location": "福岡県福岡市-南区向野",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/glanz-S4tzlwMod/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "合同会社ＬＩＦＥさん",
+              "location": "福岡県福岡市-南区柏原",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/馬立-秀実/pro",
+              "other_contractor_website_url": ""
             }
           ]
         },
@@ -352,49 +378,53 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "電線・LAN配線工事"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
               "select": "駐車場あり（無料）"
             },
             {
-              "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
-            }
-          ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-09T11:53:13.347653+00:00",
-          "profile": "alamin",
-          "extracted_contractors": [
-            {
-              "contractor_name": "山本電気さん",
-              "location": "東京都練馬区東大泉",
-              "phone_number": "",
-              "email": "",
-              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/山本電気工事-SD4URAvhC/pro",
-              "other_contractor_website_url": ""
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
             },
             {
-              "contractor_name": "株式会社シムコンさん",
-              "location": "東京都足立区東伊興",
+              "label": "ペットはいますか？",
+              "select": "いる（犬・猫）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "770-0004"
+            }
+          ],
+          "postal_code": "770-0004",
+          "finished_at": "2026-11-11T09:05:31.948868+00:00",
+          "profile": "azimon",
+          "extracted_contractors": [
+            {
+              "contractor_name": "スマイル合同会社さん",
+              "location": "静岡県袋井市湊",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "上脇電設さん",
-              "location": "東京都葛飾区奥戸",
+              "contractor_name": "便利なおじさんさん",
+              "location": "徳島県徳島市南二軒屋町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "野木介護センターさん",
+              "location": "徳島県名西郡-石井町石井（白鳥）",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
@@ -409,115 +439,292 @@
               "select": "戸建タイプ"
             },
             {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
+              "label": "いつ頃実施したいですか？",
               "select": "可能な限り早く"
             },
             {
-              "label": "どのような電気工事をご希望ですか？",
-              "select": "電線・LAN配線工事"
-            },
-            {
-              "label": "駐車スペースはございますか？",
-              "select": "駐車場あり（有料）"
-            },
-            {
-              "label": "郵便番号を入力して「プロを見る」",
-              "select": "182-0004"
-            }
-          ],
-          "postal_code": "182-0004",
-          "finished_at": "2026-11-09T11:59:41.225063+00:00",
-          "profile": "azimon",
-          "extracted_contractors": [
-            {
-              "contractor_name": "山本電気",
-              "location": "東京都練馬区東大泉",
-              "phone_number": "",
-              "email": "",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": ""
-            },
-            {
-              "contractor_name": "株式会社シムコン",
-              "location": "東京都足立区東伊興",
-              "phone_number": "",
-              "email": "",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": ""
-            },
-            {
-              "contractor_name": "System Works",
-              "location": "東京都江戸川区西小岩",
-              "phone_number": "",
-              "email": "",
-              "url_to_access_to_contractor": "",
-              "other_contractor_website_url": ""
-            }
-          ]
-        }
-      }
-    },
-    "リビング・居間リフォーム": {
-      "service_url": "https://www.zehitomo.com/home/reform/living-room/living-space-reform",
-      "last_profile": "azimon",
-      "combinations_done": {
-        "combination1": {
-          "steps": [
-            {
-              "label": "建物のタイプは何ですか？",
-              "select": "戸建タイプ"
-            },
-            {
-              "label": "築何年ですか？",
-              "select": "1～5年"
-            },
-            {
-              "label": "いつ頃工事を始めたいですか？",
-              "select": "可能な限り早く"
-            },
-            {
-              "label": "今回のご依頼内容はどちらですか？",
-              "select": "一部分のみ修理・補修"
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
             },
             {
               "label": "駐車スペースはございますか？",
               "select": "駐車場あり（無料）"
             },
             {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（犬・猫）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "828-0031"
+            }
+          ],
+          "postal_code": "828-0031",
+          "finished_at": "2026-11-11T09:10:33.193558+00:00",
+          "profile": "tasnia",
+          "extracted_contractors": [
+            {
+              "contractor_name": "森田さん",
+              "location": "福岡県小郡市小郡",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/森田-穣-bO9VCHcpd/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "有限会社カワムラ商事さん",
+              "location": "福岡県中間市朝霧",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/有限会社カワムラ商事/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination9": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（小動物・鳥・爬虫類等）"
+            },
+            {
               "label": "郵便番号を入力して「プロを見る」",
               "select": "182-0004"
             }
           ],
           "postal_code": "182-0004",
-          "finished_at": "2026-11-10T05:28:49.386151+00:00",
+          "finished_at": "2026-11-11T09:16:29.322562+00:00",
+          "profile": "mustakim",
+          "extracted_contractors": [
+            {
+              "contractor_name": "GRSさん",
+              "location": "東京都多摩市連光寺",
+              "phone_number": "08072040220",
+              "email": "daiking022@gmail.com",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/grs-2uvycMCr1/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ミトリックスＰＲＯさん",
+              "location": "東京都練馬区大泉町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "桜井さん",
+              "location": "東京都西多摩郡-瑞穂町南平",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/桜井-よしき-ZpS2dcsvL/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination10": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（小動物・鳥・爬虫類等）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "819-0022"
+            }
+          ],
+          "postal_code": "819-0022",
+          "finished_at": "2026-11-11T09:22:39.161798+00:00",
           "profile": "azimon",
           "extracted_contractors": [
             {
-              "contractor_name": "Gentenプランニングさん",
-              "location": "東京都武蔵野市緑町",
+              "contractor_name": "ハピクロハウスクリーニングさん",
+              "location": "福岡県宮若市鶴田",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "高橋さん",
-              "location": "東京都八王子市東浅川町",
+              "contractor_name": "クリーンデイさん",
+              "location": "福岡県久留米市長門石",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/三田村-様/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ユニストさん",
+              "location": "福岡県北九州市-小倉南区南方",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination11": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（小動物・鳥・爬虫類等）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "770-0004"
+            }
+          ],
+          "postal_code": "770-0004",
+          "finished_at": "2026-11-11T10:18:17.198177+00:00",
+          "profile": "azimon",
+          "extracted_contractors": [
+            {
+              "contractor_name": "スマイル合同会社さん",
+              "location": "静岡県袋井市湊",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
               "other_contractor_website_url": ""
             },
             {
-              "contractor_name": "Shiny Roomさん",
-              "location": "東京都昭島市宮沢町",
+              "contractor_name": "野木介護センターさん",
+              "location": "徳島県名西郡-石井町石井（白鳥）",
               "phone_number": "",
               "email": "",
               "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社フィルビルサービスさん",
+              "location": "徳島県板野郡-北島町鯛浜",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination12": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "掃除するエアコンの種類は何ですか？",
+              "select": "家庭用"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "エアコンは何台クリーニングしますか？",
+              "select": "1台"
+            },
+            {
+              "label": "ペットはいますか？",
+              "select": "いる（小動物・鳥・爬虫類等）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "828-0031"
+            }
+          ],
+          "postal_code": "828-0031",
+          "finished_at": "2026-11-11T10:24:38.118593+00:00",
+          "profile": "tasnia",
+          "extracted_contractors": [
+            {
+              "contractor_name": "田中建創さん",
+              "location": "佐賀県佐賀市大和町 久池井",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E7%94%B0%E4%B8%AD%E5%BB%BA%E8%A3%85-Z8FDhlYLZ/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "FIX ROOMさん",
+              "location": "福岡県福岡市-博多区竹下",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/%E6%A3%AE-%E5%8C%A1%E5%8F%B2-g1_4EzXVB/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "TOTAL CLEAN +さん",
+              "location": "福岡県福岡市-東区若宮",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/total-clean-j-IqOtd9R/pro",
               "other_contractor_website_url": ""
             }
           ]

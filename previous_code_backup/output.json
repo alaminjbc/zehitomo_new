@@ -1,0 +1,528 @@
+{
+  "options_file": "/Users/alamin/zehitomo_new/combination_creation/options.json",
+  "services": {
+    "電気屋・電気工事": {
+      "service_url": "https://www.zehitomo.com/home/repair-exchange-set/electrical/electrical-construction",
+      "last_profile": "azimon",
+      "combinations_done": {
+        "combination1": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "コンセント工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-05T12:18:22.812130+00:00",
+          "extracted_contractors": [
+            {
+              "contractor_name": "プライムワークスさん",
+              "location": "東京都調布市",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/齊藤-修-OdXV6R6iu/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ユアハンディマンさん",
+              "location": "東京都杉並区阿佐谷北",
+              "phone_number": "09033955536",
+              "email": "handyman.ishikawa@gmail.com",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+            },
+            {
+              "contractor_name": "株式会社MY CREWさん",
+              "location": "静岡県静岡市葵区沓谷",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination2": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "コンセント工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（有料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-05T12:25:41.384525+00:00",
+          "extracted_contractors": [
+            {
+              "contractor_name": "プライムワークスさん",
+              "location": "東京都調布市国領町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/齊藤-修-OdXV6R6iu/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ユアハンディマンさん",
+              "location": "東京都杉並区阿佐谷北",
+              "phone_number": "09033955536",
+              "email": "handyman.ishikawa@gmail.com",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/ユアハンディマン-zBKanibl_/pro/handyman",
+              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+            },
+            {
+              "contractor_name": "株式会社MY CREWさん",
+              "location": "静岡県静岡市葵区沓谷",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination3": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "コンセント工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場なし"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T05:09:27.728696+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "株式会社MY CREWさん",
+              "location": "静岡県静岡市-葵区沓谷",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社my-crew-fAoMNpmnk/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "プライムワークスさん",
+              "location": "東京都調布市国領町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ユアハンディマンさん",
+              "location": "東京都杉並区阿佐谷北",
+              "phone_number": "09033955536",
+              "email": "handyman.ishikawa@gmail.com",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+            }
+          ]
+        },
+        "combination4": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "照明機器工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T05:44:47.859804+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "株式会社REK住設さん",
+              "location": "東京都板橋区坂下",
+              "phone_number": "07017696543",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社rek住設-NMdqX9fNA/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "井上さん",
+              "location": "東京都東久留米市前沢",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/guy-inoue/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "システムさん",
+              "location": "東京都足立区東伊興",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination5": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "照明機器工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（有料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T11:37:37.070533+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "山本電気さん",
+              "location": "東京都練馬区",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/山本電気工事-SD4URAvhC/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "システムさん",
+              "location": "東京都足立区東伊興",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "井上さん",
+              "location": "東京都東久留米市前沢",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/井上-JWlAOvYBq/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination6": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "照明機器工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場なし"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T11:46:09.884825+00:00",
+          "profile": "azimon",
+          "extracted_contractors": [
+            {
+              "contractor_name": "株式会社REK住設さん",
+              "location": "東京都板橋区坂下",
+              "phone_number": "07017696543",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社MY CREWさん",
+              "location": "",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ユアハンディマンさん",
+              "location": "",
+              "phone_number": "09033955536",
+              "email": "handyman.ishikawa@gmail.com",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": "https://www.instagram.com/yourhandy2022/"
+            }
+          ]
+        },
+        "combination7": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "電線・LAN配線工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T11:53:13.347653+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "山本電気さん",
+              "location": "東京都練馬区東大泉",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/山本電気工事-SD4URAvhC/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社シムコンさん",
+              "location": "東京都足立区東伊興",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "上脇電設さん",
+              "location": "東京都葛飾区奥戸",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination8": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "どのような電気工事をご希望ですか？",
+              "select": "電線・LAN配線工事"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（有料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-09T11:59:41.225063+00:00",
+          "profile": "azimon",
+          "extracted_contractors": [
+            {
+              "contractor_name": "山本電気",
+              "location": "東京都練馬区東大泉",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社シムコン",
+              "location": "東京都足立区東伊興",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "System Works",
+              "location": "東京都江戸川区西小岩",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        }
+      }
+    },
+    "リビング・居間リフォーム": {
+      "service_url": "https://www.zehitomo.com/home/reform/living-room/living-space-reform",
+      "last_profile": "azimon",
+      "combinations_done": {
+        "combination1": {
+          "steps": [
+            {
+              "label": "建物のタイプは何ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "築何年ですか？",
+              "select": "1～5年"
+            },
+            {
+              "label": "いつ頃工事を始めたいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "今回のご依頼内容はどちらですか？",
+              "select": "一部分のみ修理・補修"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "182-0004"
+            }
+          ],
+          "postal_code": "182-0004",
+          "finished_at": "2026-11-10T05:28:49.386151+00:00",
+          "profile": "azimon",
+          "extracted_contractors": [
+            {
+              "contractor_name": "Gentenプランニングさん",
+              "location": "東京都武蔵野市緑町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "高橋さん",
+              "location": "東京都八王子市東浅川町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "Shiny Roomさん",
+              "location": "東京都昭島市宮沢町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -25,3 +25,21 @@ PROFILE_LOCK_NAMES = (
     "SingletonSocket",
     "RunningChromeVersion",
 )
+
+# Google Drive sync (service account). Separate from GOOGLE_API_KEY (Gemini).
+DRIVE_SYNC_ENABLED = os.getenv("GOOGLE_DRIVE_SYNC", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+_drive_creds = os.getenv("GOOGLE_DRIVE_CREDENTIALS", "").strip()
+GOOGLE_DRIVE_CREDENTIALS = (
+    Path(_drive_creds)
+    if _drive_creds and Path(_drive_creds).is_absolute()
+    else (ROOT / _drive_creds if _drive_creds else ROOT / "credentials" / "google-drive-service-account.json")
+)
+DRIVE_FOLDER_ID = os.getenv(
+    "GOOGLE_DRIVE_FOLDER_ID",
+    "1DAMVhfiyQj8AK890CO87v0Z1omunyrPY",
+).strip()

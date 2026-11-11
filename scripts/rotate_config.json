@@ -1,7 +1,7 @@
 {
   "mode": "round_robin",
-  "profiles": ["alamin", "azimon"],
-  "service": "リビング・居間リフォーム",
+  "profiles": ["azimon","tasnia","mustakim"],
+  "service": "エアコンクリーニング",
   "options": "combination_creation/options.json",
   "output": "output.json",
   "batch_max": 6,

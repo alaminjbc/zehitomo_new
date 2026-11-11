@@ -10,7 +10,7 @@ from typing import Any
 
 from app.config import PROFILE_LOCK_NAMES, PROFILES_ROOT
 
-# Organic Google results: anchors that wrap an h3 title inside #search / #rso.
+# Organic Google results + any zehitomo profile links visible on the SERP.
 GOOGLE_TOP_RESULTS_JS = """
 () => {
   const root =
@@ -18,18 +18,35 @@ GOOGLE_TOP_RESULTS_JS = """
     document.querySelector('#rso') ||
     document.querySelector('#center_col') ||
     document.body;
+
+  const skipHref = (href) => {
+    const lower = (href || '').toLowerCase();
+    if (!href || !href.startsWith('http')) return true;
+    if (lower.includes('accounts.google')) return true;
+    if (lower.includes('support.google')) return true;
+    if (lower.includes('google.') && !lower.includes('/url?') && !lower.includes('zehitomo.com')) {
+      return true;
+    }
+    return false;
+  };
+
   const results = [];
   const seen = new Set();
-  for (const a of root.querySelectorAll('a[href]')) {
-    const h3 = a.querySelector('h3');
-    if (!h3) continue;
+
+  // Classic organic: h3 title with a nearby / parent / child anchor.
+  for (const h3 of root.querySelectorAll('h3')) {
+    let a = h3.closest('a[href]') || h3.querySelector('a[href]');
+    if (!a) {
+      let p = h3.parentElement;
+      for (let i = 0; i < 6 && p && !a; i++) {
+        a = p.querySelector('a[href]');
+        if (a) break;
+        p = p.parentElement;
+      }
+    }
+    if (!a) continue;
     const href = (a.href || '').trim();
-    if (!href || !href.startsWith('http')) continue;
-    const lower = href.toLowerCase();
-    if (lower.includes('google.') && !lower.includes('/url?')) continue;
-    if (lower.includes('accounts.google')) continue;
-    if (lower.includes('support.google')) continue;
-    if (seen.has(href)) continue;
+    if (skipHref(href) || seen.has(href)) continue;
     seen.add(href);
     results.push({
       title: (h3.innerText || '').trim().slice(0, 160),
@@ -37,9 +54,31 @@ GOOGLE_TOP_RESULTS_JS = """
     });
     if (results.length >= 5) break;
   }
+
+  // Direct profile links on the SERP (cite / blue link / redirect).
+  const profiles = [];
+  const seenProfile = new Set();
+  for (const a of root.querySelectorAll('a[href]')) {
+    const href = (a.href || '').trim();
+    if (!href) continue;
+    const lower = href.toLowerCase();
+    const looksProfile =
+      lower.includes('zehitomo.com/profile/') ||
+      (lower.includes('google.') && lower.includes('/url?') && lower.includes('zehitomo.com'));
+    if (!looksProfile) continue;
+    if (seenProfile.has(href)) continue;
+    seenProfile.add(href);
+    profiles.push({
+      title: (a.innerText || a.textContent || '').trim().slice(0, 160),
+      href: href,
+    });
+    if (profiles.length >= 5) break;
+  }
+
   return {
     count: results.length,
     results: results,
+    profiles: profiles,
     url: location.href,
   };
 }

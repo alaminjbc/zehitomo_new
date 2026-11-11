@@ -23,8 +23,7 @@ Usage (from repo root, with Chrome profile logged in):
     # one service — continues from combination{N+1} if N already saved
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム
     python combination_creation/zehitomo_combination.py --service リビング・居間リフォーム
-    
-    
+
     # wipe and restart from combination1
     python combination_creation/zehitomo_combination.py --service お風呂・浴室の修理・リフォーム --force
 """
@@ -45,7 +44,25 @@ USER_DATA_DIR = str(ROOT / "zehitomo-profile")
 SECTIONS_FILE = ROOT / "sections.json"
 OPTIONS_FILE = HERE / "options.json"
 
-POSTAL_CODES = ["182-0004"]
+POSTAL_CODES = [
+    "182-0004",
+    "819-0022",
+    "770-0004",
+    "828-0031",
+]
+
+# POSTAL_CODES = [
+#     "866-0032",  # 熊本県八代市新開町
+#     "569-0855",  # 大阪府高槻市牧田町
+#     "290-0011",  # 千葉県市原市能満
+#     "116-0014",  # 東京都荒川区東日暮里
+#     "272-0001",  # 千葉県市川市二俣
+#     "299-0246",  # 千葉県袖ケ浦市長浦駅前
+#     "146-0085",  # 東京都大田区久が原
+#     "290-0051",  # 千葉県市原市君塚
+#     "880-0212",  # 宮崎県宮崎市佐土原町 下那珂
+#     "202-0004",  # 東京都西東京市下保谷
+# ]
 
 CTA_SEL = "button[class*='RequestFormCTA_button']"
 MODAL_SEL = "[data-test-id='request-form-modal']"
@@ -352,7 +369,7 @@ def walk(
         return
 
     if is_address_step(root):
-        # Record combinations only — do not submit 「プロを見る」 for every path
+        # Same questionnaire path → one combination for each postal code.
         for code in POSTAL_CODES:
             if resume_state["skip_leaves"] > 0:
                 resume_state["skip_leaves"] -= 1
@@ -479,6 +496,7 @@ def main() -> None:
     print(f"Services    : {len(targets)}")
     for name, url in targets:
         print(f"  - {name} ({url})")
+    print(f"Postal codes: {', '.join(POSTAL_CODES)}")
     print(f"Writing to  : {OPTIONS_FILE.resolve()}")
     print(f"Force       : {args.force}")
 
@@ -516,6 +534,12 @@ def main() -> None:
             print(f"  -> {count} combinations saved for {name}")
 
         print(f"Done. Saved -> {OPTIONS_FILE}")
+        try:
+            from app.services.drive import sync_scrape_artifacts
+
+            sync_scrape_artifacts(options=OPTIONS_FILE)
+        except Exception as e:
+            print(f"[drive] skip options sync: {type(e).__name__}: {e}")
         context.close()
 
 

@@ -18,6 +18,7 @@ from app.services.options import (
     list_combinations,
     load_options,
 )
+from app.services.drive import sync_scrape_artifacts
 from app.services.prompt import build_task
 from app.services.sheet import append_contractors
 from app.services.tools import build_tools
@@ -168,11 +169,14 @@ async def scrape_one(
     # Must use real Google Chrome — login_profile.py wrote this user-data-dir
     # with Chrome. browser-use defaults to Playwright Chromium, which then
     # exits immediately → CDP ReadError / RemoteProtocolError.
+    # keep_alive=False so the process can exit after each combination.
+    # With True, browser-use leaves CDP/thread-pool work hanging after
+    # "Done." and rotate scripts look stuck until Ctrl+C.
     browser = Browser(
         executable_path=str(chrome),
         user_data_dir=str(path),
         headless=False,
-        keep_alive=True,
+        keep_alive=False,
         window_size={"width": 1440, "height": 900},
         ignore_default_args=[
             "--disable-window-activation",
@@ -372,6 +376,7 @@ async def run(
             profile=profile,
             finished_at=finished_at,
         )
+        sync_scrape_artifacts(output=output, options=options_path)
         print(
             f"Saved {combo_id}: {len(data['contractors'])} contractors, "
             f"{added} new rows in zehitomo_main.csv"

@@ -7,4 +7,16 @@ profiles/**
 venv
 .venv312
 .env
-.env
+credentials/
+**/google-drive-service-account.json
+**/*service-account*.json
+
+# Python bytecode / cache
+app/__pycache__/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python

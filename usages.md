@@ -11,9 +11,31 @@ conda activate zehitomo
 ```text
 GOOGLE_API_KEY=...
 GOOGLE_MODEL=gemini-3.6-flash
+
+# Google Drive sync (optional, separate from Gemini key)
+GOOGLE_DRIVE_SYNC=1
+GOOGLE_DRIVE_FOLDER_ID=1DAMVhfiyQj8AK890CO87v0Z1omunyrPY
+GOOGLE_DRIVE_CREDENTIALS=credentials/google-drive-service-account.json
 ```
 
 `GOOGLE_MODEL` is optional. Quit Chrome completely (Cmd+Q) before a scrape that uses the same profile folder.
+
+### Google Drive setup (Option 2)
+
+1. Google Cloud Console → create/select a project → enable **Google Drive API**
+2. Create a **service account** → Keys → Add key → JSON  
+   Save it as `credentials/google-drive-service-account.json` (gitignored)
+3. Open the service account JSON and copy `client_email`
+4. Share your Drive folder with that email as **Editor**:  
+   https://drive.google.com/drive/folders/1DAMVhfiyQj8AK890CO87v0Z1omunyrPY
+5. Install packages: `pip install google-api-python-client google-auth`
+6. Test upload:
+
+```bash
+python scripts/sync_drive.py
+```
+
+While scraping, after each saved combination the code updates local files **and** overwrites `output.json`, `zehitomo_main.csv`, and `options.json` in that Drive folder.
 
 ## 1. Log in once
 
@@ -39,6 +61,8 @@ python combination_creation/zehitomo_combination.py --service 電気屋・電気
 # wipe that service and start again from combination1
 python combination_creation/zehitomo_combination.py --service 電気屋・電気工事 --force
 ```
+
+When a questionnaire path reaches the address step, the same combination is saved for every code in `POSTAL_CODES`.
 
 ## 3. Scrape contractors
 

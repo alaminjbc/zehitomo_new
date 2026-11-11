@@ -60,7 +60,7 @@ Flow:
        (other_contractor_website_url = ONLY links from chat messages,
         not sidebar/header/footer; "" if none)
    - call find_url_to_access_to_contractor with that contractor_name
-     → tool searches Google for: `name ゼヒトモ` (drops trailing さん)
+     → tool searches Google for: `{{contractor_name}} ゼヒトモ`
      → opens the first two organic Google result links and checks for
        zehitomo.com/profile/...
      → use its url_to_access_to_contractor ("" if none match)
