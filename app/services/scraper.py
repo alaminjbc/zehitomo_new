@@ -19,6 +19,7 @@ from app.services.options import (
     load_options,
 )
 from app.services.drive import sync_scrape_artifacts
+from app.services.profile_status import mark_captcha, mark_success
 from app.services.prompt import build_task
 from app.services.sheet import append_contractors
 from app.services.tools import build_tools
@@ -331,6 +332,11 @@ async def run(
             )
         except CaptchaDetected as e:
             print(f"{combo_id} captcha: {e}")
+            mark_captcha(
+                profile,
+                service=service_name,
+                combination_id=combo_id,
+            )
             print(
                 "Captcha hit — combination NOT saved. "
                 "Switch profile and retry the same combination:\n"
@@ -342,6 +348,11 @@ async def run(
         except Exception as e:
             print(f"{combo_id} failed: {type(e).__name__}: {e}")
             if _mentions_captcha(e):
+                mark_captcha(
+                    profile,
+                    service=service_name,
+                    combination_id=combo_id,
+                )
                 print(
                     "Captcha hit — combination NOT saved. "
                     "Switch profile and retry the same combination."
@@ -376,6 +387,7 @@ async def run(
             profile=profile,
             finished_at=finished_at,
         )
+        mark_success(profile)
         sync_scrape_artifacts(output=output, options=options_path)
         print(
             f"Saved {combo_id}: {len(data['contractors'])} contractors, "

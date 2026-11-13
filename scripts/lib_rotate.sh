@@ -89,6 +89,63 @@ require_profiles() {
   fi
 }
 
+# Print eligible profile names (not on captcha cooldown), one per line.
+# Candidates come from the PROFILES bash array.
+list_eligible_profiles() {
+  CANDIDATE_PROFILES="${PROFILES[*]}" "$PYTHON" - <<'PY'
+import os
+import sys
+from pathlib import Path
+
+# Repo root is cwd (lib_rotate cds there).
+sys.path.insert(0, str(Path.cwd()))
+from app.services.profile_status import list_eligible
+
+candidates = [p for p in os.environ.get("CANDIDATE_PROFILES", "").split() if p]
+for name in list_eligible(candidates):
+    print(name)
+PY
+}
+
+print_cooldown_summary() {
+  CANDIDATE_PROFILES="${PROFILES[*]}" "$PYTHON" - <<'PY'
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd()))
+from app.services.profile_status import cooldown_summary
+
+candidates = [p for p in os.environ.get("CANDIDATE_PROFILES", "").split() if p]
+print(cooldown_summary(candidates))
+PY
+}
+
+# Load currently eligible profiles into the named bash array (quiet).
+read_eligible_profiles() {
+  local __eligible_var="$1"
+  local __line
+  local -a __items=()
+  while IFS= read -r __line || [[ -n "$__line" ]]; do
+    [[ -n "$__line" ]] && __items+=("$__line")
+  done < <(list_eligible_profiles)
+  eval "$__eligible_var"'=("${__items[@]}")'
+}
+
+# Load eligible profiles; return 1 with a summary when none remain.
+load_eligible_profiles() {
+  local __eligible_var="$1"
+  read_eligible_profiles "$__eligible_var"
+  local __count
+  eval "__count=\${#$__eligible_var[@]}"
+  if [[ "$__count" -eq 0 ]]; then
+    echo "No eligible profiles — all are on captcha cooldown:"
+    print_cooldown_summary
+    return 1
+  fi
+  return 0
+}
+
 # Print pending combination ids for SERVICE, one per line (combination1, ...).
 list_pending_combos() {
   OPTIONS_FILE="$OPTIONS" SERVICE_NAME="$SERVICE" OUTPUT_FILE="$OUTPUT" \
@@ -154,11 +211,19 @@ load_pending_combos() {
 }
 
 print_rotate_settings() {
+  local -a eligible=()
+  read_eligible_profiles eligible
   echo "Config   : $ROTATE_CONFIG"
   echo "Repo     : $ROOT"
   echo "Python   : $PYTHON"
   echo "Mode     : $MODE"
   echo "Profiles : ${PROFILES[*]}"
+  if [[ "${#eligible[@]}" -gt 0 ]]; then
+    echo "Eligible : ${eligible[*]}"
+  else
+    echo "Eligible : (none — all on cooldown)"
+  fi
+  echo "Status   : scripts/profile_status.json"
   echo "Service  : $SERVICE"
   echo "Options  : $OPTIONS"
   echo "Output   : $OUTPUT"
@@ -168,31 +233,43 @@ print_rotate_settings() {
 
 run_way_round_robin() {
   local -a pending=()
+  local -a eligible=()
   load_pending_combos pending
   if [[ "${#pending[@]}" -eq 0 ]]; then
     echo "No pending combinations for $SERVICE"
     return 0
   fi
+  load_eligible_profiles eligible || return 1
 
-  echo "Way-1 round-robin (on captcha: retry same combo with next profile)"
+  echo "Way-1 round-robin (on captcha: retry same combo with next eligible profile)"
   echo "Pending  : ${pending[*]}"
+  echo "Eligible : ${eligible[*]}"
 
-  local n_profiles=${#PROFILES[@]}
+  local n_profiles=${#eligible[@]}
   local profile_index=0
   local pending_index=0
   local wraps=0
   local combo profile status
 
   while [[ "$pending_index" -lt "${#pending[@]}" ]]; do
+    n_profiles=${#eligible[@]}
+    if [[ "$n_profiles" -eq 0 ]]; then
+      echo
+      echo "No eligible profiles left (captcha cooldown). Remaining:"
+      printf '  %s\n' "${pending[@]:$pending_index}"
+      print_cooldown_summary
+      return 1
+    fi
     if [[ "$wraps" -ge "$n_profiles" ]]; then
       echo
-      echo "Every profile hit captcha on ${pending[$pending_index]}. Remaining:"
+      echo "Every eligible profile hit captcha on ${pending[$pending_index]}. Remaining:"
       printf '  %s\n' "${pending[@]:$pending_index}"
+      print_cooldown_summary
       return 1
     fi
 
     combo="${pending[$pending_index]}"
-    profile="${PROFILES[$((profile_index % n_profiles))]}"
+    profile="${eligible[$((profile_index % n_profiles))]}"
 
     set +e
     run_combo "$profile" "$combo"
@@ -200,9 +277,15 @@ run_way_round_robin() {
     set -e
 
     if [[ "$status" -eq "$CAPTCHA_EXIT" ]]; then
-      echo "Captcha on $profile during $combo — retry same combo with next profile"
-      profile_index=$((profile_index + 1))
-      wraps=$((wraps + 1))
+      echo "Captcha on $profile during $combo — refresh eligible and retry same combo"
+      local before=${#eligible[@]}
+      load_eligible_profiles eligible || return 1
+      profile_index=0
+      if [[ "${#eligible[@]}" -lt "$before" ]]; then
+        wraps=0
+      else
+        wraps=$((wraps + 1))
+      fi
       continue
     fi
 
@@ -221,14 +304,17 @@ run_way_round_robin() {
 
 run_way_until_captcha() {
   local -a pending=()
+  local -a eligible=()
   load_pending_combos pending
   if [[ "${#pending[@]}" -eq 0 ]]; then
     echo "No pending combinations for $SERVICE"
     return 0
   fi
+  load_eligible_profiles eligible || return 1
 
   echo "Way-2 until-captcha (BATCH_MAX=$BATCH_MAX)"
   echo "Pending  : ${pending[*]}"
+  echo "Eligible : ${eligible[*]}"
 
   local profile_index=0
   local batch_count=0
@@ -236,14 +322,15 @@ run_way_until_captcha() {
   local profile combo status
 
   while [[ "$pending_index" -lt "${#pending[@]}" ]]; do
-    if [[ "$profile_index" -ge "${#PROFILES[@]}" ]]; then
+    if [[ "$profile_index" -ge "${#eligible[@]}" ]]; then
       echo
-      echo "No profiles left (all hit captcha or BATCH_MAX). Remaining:"
+      echo "No eligible profiles left (all hit captcha or BATCH_MAX). Remaining:"
       printf '  %s\n' "${pending[@]:$pending_index}"
+      print_cooldown_summary
       return 1
     fi
 
-    profile="${PROFILES[$profile_index]}"
+    profile="${eligible[$profile_index]}"
     combo="${pending[$pending_index]}"
 
     if [[ "$batch_count" -ge "$BATCH_MAX" ]]; then
@@ -262,9 +349,13 @@ run_way_until_captcha() {
     batch_count=$((batch_count + 1))
 
     if [[ "$status" -eq "$CAPTCHA_EXIT" ]]; then
-      echo "Captcha on $profile — switching to next profile"
+      echo "Captcha on $profile — refresh eligible and switch profile"
       pending_index=$((pending_index - 1))
-      profile_index=$((profile_index + 1))
+      load_eligible_profiles eligible || return 1
+      # Stay at same index: cooled profile dropped, next candidate shifts here.
+      if [[ "$profile_index" -ge "${#eligible[@]}" ]]; then
+        profile_index=${#eligible[@]}
+      fi
       batch_count=0
     elif [[ "$status" -ne 0 ]]; then
       echo "Non-captcha failure ($status) on $profile / $combo — trying next combo on same profile"
@@ -277,16 +368,19 @@ run_way_until_captcha() {
 
 run_way_batch() {
   local -a pending=()
+  local -a eligible=()
   load_pending_combos pending
   if [[ "${#pending[@]}" -eq 0 ]]; then
     echo "No pending combinations for $SERVICE"
     return 0
   fi
+  load_eligible_profiles eligible || return 1
 
   echo "Way-3 proactive batch (BATCH_SIZE=$BATCH_SIZE)"
   echo "Pending  : ${pending[*]}"
+  echo "Eligible : ${eligible[*]}"
 
-  local n_profiles=${#PROFILES[@]}
+  local n_profiles=${#eligible[@]}
   local profile_index=0
   local batch_count=0
   local pending_index=0
@@ -294,14 +388,26 @@ run_way_batch() {
   local profile combo status
 
   while [[ "$pending_index" -lt "${#pending[@]}" ]]; do
+    n_profiles=${#eligible[@]}
+    if [[ "$n_profiles" -eq 0 ]]; then
+      echo
+      echo "No eligible profiles left (captcha cooldown). Remaining:"
+      printf '  %s\n' "${pending[@]:$pending_index}"
+      print_cooldown_summary
+      return 1
+    fi
     if [[ "$wraps" -ge "$n_profiles" ]]; then
       echo
-      echo "Every profile hit captcha without progress. Remaining:"
+      echo "Every eligible profile hit captcha without progress. Remaining:"
       printf '  %s\n' "${pending[@]:$pending_index}"
+      print_cooldown_summary
       return 1
     fi
 
-    profile="${PROFILES[$profile_index]}"
+    if [[ "$profile_index" -ge "$n_profiles" ]]; then
+      profile_index=0
+    fi
+    profile="${eligible[$profile_index]}"
     combo="${pending[$pending_index]}"
 
     if [[ "$batch_count" -ge "$BATCH_SIZE" ]]; then
@@ -318,10 +424,16 @@ run_way_batch() {
     set -e
 
     if [[ "$status" -eq "$CAPTCHA_EXIT" ]]; then
-      echo "Captcha on $profile during $combo — rotate and retry same combo"
-      profile_index=$(((profile_index + 1) % n_profiles))
+      echo "Captcha on $profile during $combo — refresh eligible and retry same combo"
+      local before=${#eligible[@]}
+      load_eligible_profiles eligible || return 1
+      profile_index=0
       batch_count=0
-      wraps=$((wraps + 1))
+      if [[ "${#eligible[@]}" -lt "$before" ]]; then
+        wraps=0
+      else
+        wraps=$((wraps + 1))
+      fi
       continue
     fi
 

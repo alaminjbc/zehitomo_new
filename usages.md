@@ -114,6 +114,8 @@ Edit [`scripts/rotate_config.json`](scripts/rotate_config.json), then run one co
 | `until_captcha` | Way-2: stay on a profile until captcha or `batch_max` |
 | `batch` | Way-3: each profile does `batch_size` combos, then rotate |
 
+Captcha cooldowns are tracked separately in [`scripts/profile_status.json`](scripts/profile_status.json) (not in rotate config). When a profile hits captcha, it is marked `cooldown` for **3 days** (`cooldown_days`). Rotation only uses eligible profiles; cooled-down ones are skipped until `eligible_after`. After that time they become active again automatically. A successful scrape also marks the profile `active`.
+
 ```bash
 # uses mode + settings from rotate_config.json
 ./scripts/run_rotate.sh
@@ -132,3 +134,4 @@ The individual scripts still work and also read the same JSON (CLI profile args 
 ./scripts/rotate_until_captcha.sh
 ./scripts/rotate_batch.sh
 ```
+
