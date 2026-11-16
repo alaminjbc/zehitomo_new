@@ -11,7 +11,12 @@ from browser_use import Agent, Browser, ChatGoogle
 
 from app.config import MAX_STEPS, MODEL, PAUSE_BETWEEN
 from app.models import ScrapingResult
-from app.services.browser import clear_stale_profile_locks, find_google_chrome, profile_path
+from app.services.browser import (
+    clear_stale_profile_locks,
+    find_google_chrome,
+    profile_path,
+    trim_profile_logged,
+)
 from app.services.options import (
     absolute_service_url,
     answers_from_steps,
@@ -310,6 +315,8 @@ async def run(
     print(f"Output      : {output.resolve()}")
     print("Quit Chrome using this profile before starting (Cmd+Q).")
     print("Ctrl+C to stop early.\n")
+    # Drop regenerable Chrome caches before launch (login cookies kept).
+    trim_profile_logged(path)
 
     total = len(selected)
     captcha_hit = False

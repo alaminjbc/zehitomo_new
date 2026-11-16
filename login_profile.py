@@ -113,6 +113,12 @@ async def login(name: str) -> None:
     print("=" * 60)
     await wait_for_enter("\nPress ENTER after you quit Chrome: ")
     print(f"Profile saved under {path.resolve()}")
+    try:
+        from app.services.browser import trim_profile_logged
+
+        trim_profile_logged(path)
+    except Exception as e:
+        print(f"[trim] skipped: {type(e).__name__}: {e}")
     print(f"Next: python -m app.main {name} --service <service> --limit 1")
     print(
         "\nImportant: Always quit Chrome before python -m app.main "

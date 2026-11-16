@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import re
 import shutil
 import sys
@@ -198,6 +199,130 @@ def clear_stale_profile_locks(path: Path) -> list[str]:
             lock.unlink(missing_ok=True)
             removed.append(name)
     return removed
+
+
+# Regenerable Chrome junk only. Never include Cookies / Login Data /
+# Preferences / Local Storage / Session Storage / IndexedDB.
+_TRIM_RELATIVE_PATHS = (
+    "Default/Cache",
+    "Default/Code Cache",
+    "Default/GPUCache",
+    "Default/DawnWebGPUCache",
+    "Default/DawnGraphiteCache",
+    "Default/Service Worker",
+    "Default/History",
+    "Default/History-journal",
+    "Default/Sessions",
+    "Default/Sessions_Encrypted",
+    "GraphiteDawnCache",
+    "GPUPersistentCache",
+    "ShaderCache",
+    "GrShaderCache",
+    "optimization_guide_model_store",
+    "component_crx_cache",
+    "extensions_crx_cache",
+    "WasmTtsEngine",
+    "Safe Browsing",
+    "OnDeviceHeadSuggestModel",
+    "BrowserMetrics",
+    "DeferredBrowserMetrics",
+    "CertificateRevocation",
+    "ZxcvbnData",
+    "ActorSafetyLists",
+    "OptimizationHints",
+    "Subresource Filter",
+    "PKIMetadata",
+    "Crowd Deny",
+    "SafetyTips",
+    "MEIPreload",
+    "FileTypePolicies",
+    "FirstPartySetsPreloaded",
+    "PrivacySandboxAttestationsPreloaded",
+    "AmountExtractionHeuristicRegexes",
+    "CaptchaProviders",
+    "OptimizationGuideModelsManifest",
+    "segmentation_platform",
+    "OriginTrials",
+    "SSLErrorAssistant",
+)
+
+
+def _path_size(path: Path) -> int:
+    if not path.exists():
+        return 0
+    if path.is_file() or path.is_symlink():
+        try:
+            return path.stat().st_size
+        except OSError:
+            return 0
+    total = 0
+    for root, _dirs, files in os.walk(path):
+        for name in files:
+            try:
+                total += (Path(root) / name).stat().st_size
+            except OSError:
+                pass
+    return total
+
+
+def trim_profile(path: Path) -> dict[str, int | list[str]]:
+    """
+    Delete regenerable Chrome caches under a user-data-dir.
+    Keeps login session files. Chrome must be fully quit first.
+    """
+    path = Path(path)
+    before = _path_size(path)
+    removed: list[str] = []
+    freed = 0
+
+    if not path.is_dir():
+        return {"before": before, "after": before, "freed": 0, "removed": removed}
+
+    for rel in _TRIM_RELATIVE_PATHS:
+        target = path / rel
+        if not target.exists() and not target.is_symlink():
+            continue
+        size = _path_size(target)
+        try:
+            if target.is_dir() and not target.is_symlink():
+                shutil.rmtree(target, ignore_errors=False)
+            else:
+                target.unlink(missing_ok=True)
+            removed.append(rel)
+            freed += size
+        except OSError as e:
+            print(f"[trim] skip {rel}: {e}")
+
+    after = _path_size(path)
+    return {
+        "before": before,
+        "after": after,
+        "freed": max(freed, before - after),
+        "removed": removed,
+    }
+
+
+def format_bytes(n: int) -> str:
+    value = float(n)
+    for unit in ("B", "KB", "MB", "GB"):
+        if value < 1024 or unit == "GB":
+            return f"{value:.1f}{unit}" if unit != "B" else f"{int(value)}B"
+        value /= 1024
+    return f"{n}B"
+
+
+def trim_profile_logged(path: Path) -> dict[str, int | list[str]]:
+    """Trim and print a short before/after summary."""
+    result = trim_profile(path)
+    removed = result.get("removed") or []
+    print(
+        f"[trim] {path.name}: "
+        f"{format_bytes(int(result['before']))} → "
+        f"{format_bytes(int(result['after']))} "
+        f"(freed {format_bytes(int(result['freed']))}, "
+        f"{len(removed)} paths)"
+    )
+    return result
 
 
 def parse_evaluate_result(raw: Any) -> Any:

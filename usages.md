@@ -47,6 +47,14 @@ python login_profile.py alamin
 
 The session is saved under `profiles/alamin/`. Use the same name later.
 
+Chrome cache junk is trimmed automatically after login and before each scrape (login cookies are kept). One-shot trim of all profiles:
+
+```bash
+# Chrome must be fully quit for those profiles
+python scripts/trim_profiles.py
+python scripts/trim_profiles.py alamin azimon
+```
+
 ## 2. Build questionnaire combinations
 
 Reads `sections.json` and writes `combination_creation/options.json`.
@@ -54,6 +62,7 @@ Reads `sections.json` and writes `combination_creation/options.json`.
 ```bash
 # one service
 python combination_creation/zehitomo_combination.py --service 電気屋・電気工事
+python combination_creation/zehitomo_combination.py --service ハウスクリーニング
 
 # continue from the next combination if some are already saved
 python combination_creation/zehitomo_combination.py --service 電気屋・電気工事
