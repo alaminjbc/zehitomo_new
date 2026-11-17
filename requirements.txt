@@ -3,3 +3,4 @@ browser-use
 python-dotenv
 google-api-python-client
 google-auth
+openpyxl

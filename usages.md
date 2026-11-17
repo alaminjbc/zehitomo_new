@@ -73,6 +73,35 @@ python combination_creation/zehitomo_combination.py --service 電気屋・電気
 
 When a questionnaire path reaches the address step, the same combination is saved for every code in `POSTAL_CODES`.
 
+### Catalog question-type patterns (boss XLSX)
+
+Walks each service’s question chain **once** (first option at each step), records every question + its option list, and groups services that share the same chain into a `type_id`. Uses one postal code (`182-0004` by default).
+
+If the service page has the banner entry buttons (e.g. 戸建 / 集合住宅 / その他 on ハウスクリーニング), those are recorded as **question 1**, then the modal questions follow. Pages without that banner fall back to the CTA → modal path. Writes:
+
+- `combination_creation/question_types.json` (resume-safe intermediate)
+- `combination_creation/question_types.xlsx`
+  - sheet `question_types`: columns A–I only (`service_name`, `category`, `URL link`, `service_url`, `type_id`, `question_count`, `postal_code`, `error`, `all_info` JSON) — no question_N columns
+  - separate sheet per type (`type_1`, `type_2`, …) with Q / A Selection layout
+- `combination_creation/question_types_summary.xlsx` — separate summary (counts + type overview)
+
+```bash
+# all services in sections.json (skips ones already in the JSON)
+python combination_creation/catalog_question_types.py
+
+# one / few services
+python combination_creation/catalog_question_types.py --service ハウスクリーニング
+python combination_creation/catalog_question_types.py --limit 5
+
+# re-scan and overwrite saved rows
+python combination_creation/catalog_question_types.py --force --service ハウスクリーニング
+
+# rebuild XLSX only from existing JSON (no browser)
+python combination_creation/catalog_question_types.py --xlsx-only
+```
+
+Needs `openpyxl` (`pip install openpyxl`). Same Chrome profile as combinations (`zehitomo-profile`).
+
 ## 3. Scrape contractors
 
 ```bash

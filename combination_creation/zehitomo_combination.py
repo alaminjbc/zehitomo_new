@@ -74,6 +74,8 @@ CTA_SEL = "button[class*='RequestFormCTA_button']"
 MODAL_SEL = "[data-test-id='request-form-modal']"
 ENTRY_TITLE_SEL = "[class*='RequestFormEntry_title']"
 ENTRY_BUTTON_TEXT_SEL = "[class*='form-entry-button-text']"
+# Banner / hero entry on the service page (2–3 big buttons before the modal).
+PAGE_ENTRY_SEL = "[class*='HomeRequestFormEntry_container']"
 ADDRESS_INPUT_SEL = "#map-search-box-search-input"
 NEXT_SEL = "button[data-test-id^='request-next']"
 BACK_SEL = "button:has-text('戻る')"
@@ -264,10 +266,16 @@ def get_checkbox_options(root):
     return options
 
 
+def _normalize_option_text(text: str) -> str:
+    return " ".join((text or "").split())
+
+
 def get_entry_button_options(root):
     options = []
     for text in root.locator(ENTRY_BUTTON_TEXT_SEL).all():
-        options.append(text.inner_text().strip())
+        cleaned = _normalize_option_text(text.inner_text())
+        if cleaned:
+            options.append(cleaned)
     return options
 
 
@@ -279,6 +287,48 @@ def get_page_options(root):
     )
 
 
+def get_page_entry_step(page) -> dict | None:
+    """
+    On-page banner entry (e.g. 戸建 / 集合住宅 / その他) shown on many
+    service URLs before the request-form modal opens.
+    """
+    container = page.locator(PAGE_ENTRY_SEL)
+    if not container.count():
+        return None
+    root = container.first
+    try:
+        if not root.is_visible():
+            return None
+    except Exception:
+        return None
+
+    heading = ""
+    title = root.locator(ENTRY_TITLE_SEL)
+    if title.count():
+        heading = _normalize_option_text(title.first.inner_text())
+    if not heading:
+        heading = get_heading(root) or "どちらでご希望ですか？"
+
+    options = get_entry_button_options(root)
+    if not options:
+        return None
+    return {"label": heading, "options": options}
+
+
+def click_page_entry_option(page, option: str) -> bool:
+    """Click a banner entry button by its visible text. Returns True if clicked."""
+    container = page.locator(PAGE_ENTRY_SEL)
+    if not container.count():
+        return False
+    root = container.first
+    want = _normalize_option_text(option)
+    for text in root.locator(ENTRY_BUTTON_TEXT_SEL).all():
+        if _normalize_option_text(text.inner_text()) == want:
+            text.locator("xpath=ancestor::button").first.click()
+            return True
+    return False
+
+
 def get_next_button(root):
     buttons = root.locator(NEXT_SEL)
     if buttons.count():
@@ -287,18 +337,19 @@ def get_next_button(root):
 
 
 def choose_option(root, option):
+    want = _normalize_option_text(option)
     for selector, label_selector in (
         ("input[type='radio']", "xpath=ancestor::label"),
         ("input[type='checkbox']", "xpath=parent::*//label"),
     ):
         for control in root.locator(selector).all():
             label = control.locator(label_selector)
-            if label.inner_text().strip() == option:
+            if _normalize_option_text(label.inner_text()) == want:
                 label.click()
                 return "option"
 
     for text in root.locator(ENTRY_BUTTON_TEXT_SEL).all():
-        if text.inner_text().strip() == option:
+        if _normalize_option_text(text.inner_text()) == want:
             text.locator("xpath=ancestor::button").first.click()
             return "button"
 
