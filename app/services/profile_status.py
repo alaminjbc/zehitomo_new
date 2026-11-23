@@ -84,14 +84,30 @@ def _profile_entry(data: dict[str, Any], profile: str) -> dict[str, Any]:
     return entry
 
 
-def _lazy_reactivate(entry: dict[str, Any], *, now: datetime | None = None) -> bool:
-    """If cooldown expired, flip status to active. Returns True if eligible."""
+def _lazy_reactivate(
+    entry: dict[str, Any],
+    *,
+    now: datetime | None = None,
+    cooldown_days: int | None = None,
+) -> bool:
+    """If cooldown expired, flip status to active. Returns True if eligible.
+
+    When ``cooldown_days`` is given, ``eligible_after`` is recomputed from
+    ``last_captcha_at + cooldown_days`` so editing cooldown_days in the JSON
+    takes effect without waiting for the old stamped date.
+    """
     now = now or _now()
     status = str(entry.get("status") or "active").strip().lower()
     if status != "cooldown":
         return True
 
     eligible_after = _parse_iso(entry.get("eligible_after"))
+    if cooldown_days is not None:
+        last_captcha = _parse_iso(entry.get("last_captcha_at"))
+        if last_captcha is not None:
+            eligible_after = last_captcha + timedelta(days=int(cooldown_days))
+            entry["eligible_after"] = eligible_after.isoformat()
+
     if eligible_after is None or now >= eligible_after:
         entry["status"] = "active"
         entry.pop("eligible_after", None)
@@ -109,6 +125,7 @@ def list_eligible(
     path: Path = PROFILE_STATUS_FILE,
 ) -> list[str]:
     data = load_status(path)
+    days = int(data.get("cooldown_days") or DEFAULT_PROFILE_COOLDOWN_DAYS)
     changed = False
     eligible: list[str] = []
     now = _now()
@@ -121,10 +138,12 @@ def list_eligible(
             eligible.append(name)
             continue
         before = str(entry.get("status") or "").lower()
-        if _lazy_reactivate(entry, now=now):
+        before_ea = entry.get("eligible_after")
+        if _lazy_reactivate(entry, now=now, cooldown_days=days):
             eligible.append(name)
-            if before == "cooldown" and str(entry.get("status") or "").lower() == "active":
-                changed = True
+        after = str(entry.get("status") or "").lower()
+        if before != after or before_ea != entry.get("eligible_after"):
+            changed = True
     if changed:
         save_status(data, path)
     return eligible

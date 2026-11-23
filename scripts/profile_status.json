@@ -1,29 +1,13 @@
 {
-  "cooldown_days": 3,
+  "cooldown_days": 2,
   "profiles": {
     "azimon": {
       "status": "cooldown",
-      "last_success_at": "2026-11-20T10:57:51.241724+00:00",
-      "last_captcha_at": "2026-11-20T11:13:46.498548+00:00",
-      "eligible_after": "2026-11-23T11:13:46.498548+00:00",
+      "last_success_at": "2026-11-23T07:58:12.159472+00:00",
+      "last_captcha_at": "2026-11-23T08:01:45.875019+00:00",
+      "eligible_after": "2026-11-25T08:01:45.875019+00:00",
       "last_service": "民泊清掃",
-      "last_combination": "combination16"
-    },
-    "tasnia": {
-      "status": "cooldown",
-      "last_success_at": "2026-11-20T11:04:06.072597+00:00",
-      "last_captcha_at": "2026-11-20T11:17:57.900555+00:00",
-      "eligible_after": "2026-11-23T11:17:57.900555+00:00",
-      "last_service": "民泊清掃",
-      "last_combination": "combination16"
-    },
-    "mustakim": {
-      "status": "cooldown",
-      "last_success_at": "2026-11-20T11:10:16.299256+00:00",
-      "last_captcha_at": "2026-11-20T11:21:17.357054+00:00",
-      "eligible_after": "2026-11-23T11:21:17.357054+00:00",
-      "last_service": "民泊清掃",
-      "last_combination": "combination16"d xfarcsv
+      "last_combination": "combination5"
     }
   }
 }

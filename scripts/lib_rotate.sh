@@ -142,6 +142,17 @@ print(cooldown_summary(candidates))
 PY
 }
 
+# Copy local array into a caller-named array. Safe with `set -u` when empty.
+_assign_array() {
+  local __dest="$1"
+  shift
+  if [[ "$#" -eq 0 ]]; then
+    eval "$__dest"'=()'
+  else
+    eval "$__dest"'=("$@")'
+  fi
+}
+
 # Load currently eligible profiles into the named bash array (quiet).
 read_eligible_profiles() {
   local __eligible_var="$1"
@@ -150,7 +161,7 @@ read_eligible_profiles() {
   while IFS= read -r __line || [[ -n "$__line" ]]; do
     [[ -n "$__line" ]] && __items+=("$__line")
   done < <(list_eligible_profiles)
-  eval "$__eligible_var"'=("${__items[@]}")'
+  _assign_array "$__eligible_var" "${__items[@]+"${__items[@]}"}"
 }
 
 # Load eligible profiles; return 1 with a summary when none remain.
@@ -231,7 +242,7 @@ load_pending_combos() {
   while IFS= read -r __line || [[ -n "$__line" ]]; do
     [[ -n "$__line" ]] && __items+=("$__line")
   done < <(list_pending_combos)
-  eval "$__pending_var"'=("${__items[@]}")'
+  _assign_array "$__pending_var" "${__items[@]+"${__items[@]}"}"
 }
 
 print_rotate_settings() {

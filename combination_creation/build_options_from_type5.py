@@ -16,6 +16,9 @@ Usage (from repo root):
         --output combination_creation/options_type_5.json
     # also merge into main options.json under 民泊清掃
     python combination_creation/build_options_from_type5.py --merge-options
+
+    # Boss block-test sheet: 12 rows, same location (10010 → 001-0010), vary Q1–Q4
+    python combination_creation/build_options_from_type5.py --test
 """
 
 from __future__ import annotations
@@ -31,12 +34,16 @@ ROOT = HERE.parent
 DEFAULT_XLSX = HERE / "[AI Zehitomo] management sheet.xlsx"
 DEFAULT_SHEET = "combination_type_5"
 DEFAULT_OUTPUT = HERE / "options_type_5.json"
+TEST_SHEET = "test_combination_type_5"
+TEST_OUTPUT = HERE / "options_test_type_5.json"
 QUESTION_TYPES = HERE / "question_types.json"
 MAIN_OPTIONS = HERE / "options.json"
 
 SERVICE_NAME = "民泊清掃"
 DEFAULT_SERVICE_URL = "/home/cleaning/other-cleaning/airbnb-cleaner"
 DEFAULT_LOCATION_LIMIT = 20
+# Boss test sheet: 12 Q-rows, one shared location code.
+TEST_LOCATION_LIMIT = 1
 
 
 def location_to_postal(location: Any) -> str:
@@ -99,10 +106,16 @@ def read_type5_rows(
     *,
     sheet_name: str = DEFAULT_SHEET,
     location_limit: int = DEFAULT_LOCATION_LIMIT,
+    max_rows: int | None = None,
+    require_explicit_q: bool = False,
 ) -> list[dict[str, Any]]:
     """
-    Read combination_type_5 with Q fill-forward.
+    Read a type_5 combination sheet with Q fill-forward.
+
     Keep rows until `location_limit` unique location ids are collected.
+    If `max_rows` is set, stop after that many combinations.
+    If `require_explicit_q` is True, skip rows where all Q1–Q4 cells are blank
+    (used for test_combination_type_5 so trailing location junk is ignored).
     """
     from openpyxl import load_workbook
 
@@ -124,6 +137,13 @@ def read_type5_rows(
 
     for row in ws.iter_rows(min_row=2, max_col=10, values_only=True):
         q_raw = [_cell_str(row[i]) if i < len(row) else None for i in range(4)]
+        explicit_any = any(v is not None for v in q_raw)
+        if require_explicit_q and not explicit_any:
+            # Test sheet: stop at the blank block after the 12 boss rows.
+            if rows:
+                break
+            continue
+
         for i in range(4):
             if q_raw[i] is None:
                 q_raw[i] = prev_q[i]
@@ -160,6 +180,8 @@ def read_type5_rows(
                 "postal_code": postal,
             }
         )
+        if max_rows is not None and len(rows) >= max_rows:
+            break
 
     wb.close()
     return rows
@@ -205,19 +227,33 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--sheet",
-        default=DEFAULT_SHEET,
-        help="Sheet name (default: combination_type_5)",
+        default=None,
+        help="Sheet name (default: combination_type_5, or test sheet with --test)",
     )
     parser.add_argument(
         "--locations",
         type=int,
-        default=DEFAULT_LOCATION_LIMIT,
-        help="How many unique locations to take from the top (default: 20)",
+        default=None,
+        help="How many unique locations to take from the top (default: 20, or 1 with --test)",
+    )
+    parser.add_argument(
+        "--max-rows",
+        type=int,
+        default=None,
+        help="Optional hard cap on combination rows",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help=(
+            "Boss block-test mode: sheet test_combination_type_5, "
+            "one location (10010), first 12 Q-rows → options_test_type_5.json"
+        ),
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=DEFAULT_OUTPUT,
+        default=None,
         help="Write standalone options JSON here",
     )
     parser.add_argument(
@@ -273,42 +309,64 @@ def main() -> None:
     _ensure_openpyxl_or_reexec()
 
     args = parse_args()
-    if args.locations < 1:
+
+    sheet = args.sheet
+    locations = args.locations
+    output = args.output
+    max_rows = args.max_rows
+    require_explicit_q = False
+
+    if args.test:
+        sheet = sheet or TEST_SHEET
+        locations = TEST_LOCATION_LIMIT if locations is None else locations
+        output = output or TEST_OUTPUT
+        # Boss added exactly 12 Q-rows; ignore the huge location tail on that tab.
+        max_rows = 12 if max_rows is None else max_rows
+        require_explicit_q = True
+    else:
+        sheet = sheet or DEFAULT_SHEET
+        locations = DEFAULT_LOCATION_LIMIT if locations is None else locations
+        output = output or DEFAULT_OUTPUT
+
+    if locations < 1:
         raise SystemExit("--locations must be >= 1")
 
     service_url, labels = load_type5_meta()
     print(f"Service   : {SERVICE_NAME}")
     print(f"URL       : {service_url}")
     print(f"Labels    : {labels}")
-    print(f"Sheet     : {args.sheet} @ {args.xlsx}")
-    print(f"Locations : first {args.locations} unique")
+    print(f"Sheet     : {sheet} @ {args.xlsx}")
+    print(f"Locations : first {locations} unique")
+    if max_rows is not None:
+        print(f"Max rows  : {max_rows}")
+    if args.test:
+        print("Mode      : TEST (same location, vary Q1–Q4, one-account block check)")
 
     rows = read_type5_rows(
         args.xlsx,
-        sheet_name=args.sheet,
-        location_limit=args.locations,
+        sheet_name=sheet,
+        location_limit=locations,
+        max_rows=max_rows,
+        require_explicit_q=require_explicit_q,
     )
     if not rows:
         raise SystemExit("No rows parsed — check sheet name / fill-forward data.")
 
     unique_locs = list(dict.fromkeys(r["location_id"] for r in rows))
     print(f"Parsed    : {len(rows)} combinations, {len(unique_locs)} locations")
-    for loc in unique_locs[:5]:
-        sample = next(r for r in rows if r["location_id"] == loc)
+    for index, row in enumerate(rows, start=1):
         print(
-            f"  loc {loc} → {sample['postal_code']} | "
-            f"{' > '.join(sample['answers'])}"
+            f"  combination{index}: loc {row['location_id']} → "
+            f"{row['postal_code']} | {' > '.join(row['answers'])}"
         )
-    if len(unique_locs) > 5:
-        print(f"  ... +{len(unique_locs) - 5} more locations")
 
     payload = build_options(rows, service_url=service_url, labels=labels)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
         json.dumps(payload, ensure_ascii=False, indent=4) + "\n",
         encoding="utf-8",
     )
-    print(f"Wrote     : {args.output.resolve()}")
+    print(f"Wrote     : {output.resolve()}")
 
     if args.merge_options:
         existing: dict[str, Any] = {}

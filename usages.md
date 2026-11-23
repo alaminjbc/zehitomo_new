@@ -128,6 +128,29 @@ python -m app.main alamin --service 電気屋・電気工事 --limit 1 \
 
 Finished contractors are also appended to `zehitomo_main.csv`.
 
+### Type_5 boss block-test (same location, one account)
+
+Sheet `test_combination_type_5` has **12 rows**, all location `10010` → postal `001-0010`, with different Q1–Q4 answers. Purpose: keep location fixed and watch when Zehitomo blocks the account.
+
+```bash
+# 1) build options from the test sheet
+python combination_creation/build_options_from_type5.py --test
+# → combination_creation/options_test_type_5.json  (12 combinations)
+
+# 2) scrape with ONE account only (use a profile not on captcha cooldown)
+#    separate output so it does not mix with earlier 民泊清掃 runs
+python -m app.main alamin --service 民泊清掃 \
+  --options combination_creation/options_test_type_5.json \
+  --output output_test_type_5.json
+
+# or via rotate config (single profile, until captcha / all 12)
+./scripts/run_rotate.sh scripts/rotate_config_test_type5.json
+```
+
+Notes:
+- `azimon` / `tasnia` / `mustakim` may still be on captcha cooldown — `alamin` is usually the free one for this test.
+- Exit code `2` = captcha; that combination is **not** marked done.
+
 ## 4. Experiment: profile switching
 
 Edit [`scripts/rotate_config.json`](scripts/rotate_config.json), then run one command. Already-done combinations in `output.json` are skipped.
