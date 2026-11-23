@@ -1,9 +1,11 @@
 {
   "mode": "round_robin",
-  "profiles": ["azimon","tasnia","mustakim"],
-  "service": "ハウスクリーニング",
-  "options": "combination_creation/options.json",
+  "profiles": ["azimon", "tasnia", "mustakim"],
+  "service": "民泊清掃",
+  "options": "combination_creation/options_type_5.json",
   "output": "output.json",
+  "sheet": "zehitomo_main.csv",
+  "profile_status": "scripts/profile_status.json",
   "batch_max": 6,
   "batch_size": 3
 }

@@ -132,13 +132,17 @@ Finished contractors are also appended to `zehitomo_main.csv`.
 
 Edit [`scripts/rotate_config.json`](scripts/rotate_config.json), then run one command. Already-done combinations in `output.json` are skipped.
 
+Path keys (`options`, `output`, `sheet`, `profile_status`) override [`app/config.py`](app/config.py) for that run. Omit a key to keep the default.
+
 ```json
 {
-  "mode": "batch",
-  "profiles": ["alamin", "azimon"],
-  "service": "電気屋・電気工事",
-  "options": "combination_creation/options.json",
+  "mode": "round_robin",
+  "profiles": ["azimon", "tasnia", "mustakim"],
+  "service": "民泊清掃",
+  "options": "combination_creation/options_type_5.json",
   "output": "output.json",
+  "sheet": "zehitomo_main.csv",
+  "profile_status": "scripts/profile_status.json",
   "batch_max": 6,
   "batch_size": 3
 }
@@ -152,7 +156,7 @@ Edit [`scripts/rotate_config.json`](scripts/rotate_config.json), then run one co
 | `until_captcha` | Way-2: stay on a profile until captcha or `batch_max` |
 | `batch` | Way-3: each profile does `batch_size` combos, then rotate |
 
-Captcha cooldowns are tracked separately in [`scripts/profile_status.json`](scripts/profile_status.json) (not in rotate config). When a profile hits captcha, it is marked `cooldown` for **3 days** (`cooldown_days`). Rotation only uses eligible profiles; cooled-down ones are skipped until `eligible_after`. After that time they become active again automatically. A successful scrape also marks the profile `active`.
+Captcha cooldowns are tracked in `profile_status` (default [`scripts/profile_status.json`](scripts/profile_status.json)). When a profile hits captcha, it is marked `cooldown` for **3 days** (`cooldown_days`). Rotation only uses eligible profiles; cooled-down ones are skipped until `eligible_after`. After that time they become active again automatically. A successful scrape also marks the profile `active`.
 
 ```bash
 # uses mode + settings from rotate_config.json

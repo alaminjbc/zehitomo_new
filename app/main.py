@@ -7,7 +7,13 @@ import asyncio
 import sys
 from pathlib import Path
 
-from app.config import OPTIONS_FILE, OUTPUT_FILE
+from app.config import (
+    MAIN_SHEET,
+    OPTIONS_FILE,
+    OUTPUT_FILE,
+    PROFILE_STATUS_FILE,
+    apply_path_overrides,
+)
 from app.services.scraper import CAPTCHA_EXIT_CODE, CaptchaDetected, run
 
 
@@ -37,7 +43,7 @@ def main() -> None:
     parser.add_argument(
         "--options",
         default=str(OPTIONS_FILE),
-        help="Path to options.json",
+        help="Path to options.json (or options_type_5.json)",
     )
     parser.add_argument(
         "--output",
@@ -45,11 +51,28 @@ def main() -> None:
         help="Output JSON file",
     )
     parser.add_argument(
+        "--sheet",
+        default=str(MAIN_SHEET),
+        help="CSV sheet path (zehitomo_main.csv)",
+    )
+    parser.add_argument(
+        "--profile-status",
+        default=str(PROFILE_STATUS_FILE),
+        help="Profile cooldown status JSON",
+    )
+    parser.add_argument(
         "--rerun",
         action="store_true",
         help="Re-scrape combinations even if already present in the output file",
     )
     args = parser.parse_args()
+
+    apply_path_overrides(
+        options=args.options,
+        output=args.output,
+        sheet=args.sheet,
+        profile_status=args.profile_status,
+    )
 
     try:
         asyncio.run(
@@ -60,6 +83,8 @@ def main() -> None:
                 limit=args.limit,
                 options_path=Path(args.options),
                 output=Path(args.output),
+                sheet_path=Path(args.sheet),
+                profile_status_path=Path(args.profile_status),
                 rerun=args.rerun,
             )
         )

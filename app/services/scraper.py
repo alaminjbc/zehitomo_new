@@ -9,7 +9,15 @@ from typing import Any
 
 from browser_use import Agent, Browser, ChatGoogle
 
-from app.config import MAX_STEPS, MODEL, PAUSE_BETWEEN
+from app.config import (
+    MAIN_SHEET,
+    MAX_STEPS,
+    MODEL,
+    PAUSE_BETWEEN,
+    PROFILE_STATUS_FILE,
+    apply_path_overrides,
+    resolve_path,
+)
 from app.models import ScrapingResult
 from app.services.browser import (
     clear_stale_profile_locks,
@@ -255,8 +263,19 @@ async def run(
     limit: int | None,
     options_path: Path,
     output: Path,
+    sheet_path: Path | None = None,
+    profile_status_path: Path | None = None,
     rerun: bool = False,
 ) -> None:
+    apply_path_overrides(
+        options=options_path,
+        output=output,
+        sheet=sheet_path,
+        profile_status=profile_status_path,
+    )
+    sheet = resolve_path(sheet_path, MAIN_SHEET)
+    status_path = resolve_path(profile_status_path, PROFILE_STATUS_FILE)
+
     path = profile_path(profile)
     if not path.exists():
         raise FileNotFoundError(
@@ -313,6 +332,8 @@ async def run(
     print(f"Service URL : {service_url}")
     print(f"Combinations: {[k for k, _ in selected]}")
     print(f"Output      : {output.resolve()}")
+    print(f"Sheet       : {sheet.resolve()}")
+    print(f"Status      : {status_path.resolve()}")
     print("Quit Chrome using this profile before starting (Cmd+Q).")
     print("Ctrl+C to stop early.\n")
     # Drop regenerable Chrome caches before launch (login cookies kept).
@@ -343,6 +364,7 @@ async def run(
                 profile,
                 service=service_name,
                 combination_id=combo_id,
+                path=status_path,
             )
             print(
                 "Captcha hit — combination NOT saved. "
@@ -359,6 +381,7 @@ async def run(
                     profile,
                     service=service_name,
                     combination_id=combo_id,
+                    path=status_path,
                 )
                 print(
                     "Captcha hit — combination NOT saved. "
@@ -393,12 +416,13 @@ async def run(
             combination_id=combo_id,
             profile=profile,
             finished_at=finished_at,
+            sheet_path=sheet,
         )
-        mark_success(profile)
-        sync_scrape_artifacts(output=output, options=options_path)
+        mark_success(profile, path=status_path)
+        sync_scrape_artifacts(output=output, options=options_path, sheet=sheet)
         print(
             f"Saved {combo_id}: {len(data['contractors'])} contractors, "
-            f"{added} new rows in zehitomo_main.csv"
+            f"{added} new rows in {sheet.name}"
         )
 
         if index < total:

@@ -20,13 +20,17 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
 Usage: ./scripts/run_rotate.sh [config.json]
 
 Edit scripts/rotate_config.json:
-  mode      : round_robin | until_captcha | batch
-  profiles  : ["alamin", "azimon", ...]
-  service   : service name in options.json
-  options   : path to options.json
-  output    : path to output.json
-  batch_max : way-2 max combos per profile before switch
-  batch_size: way-3 combos per profile before rotate
+  mode           : round_robin | until_captcha | batch
+  profiles       : ["alamin", "azimon", ...]
+  service        : service name in options file
+  options        : path to options.json / options_type_5.json
+  output         : path to output.json
+  sheet          : path to zehitomo_main.csv
+  profile_status : path to profile_status.json
+  batch_max      : way-2 max combos per profile before switch
+  batch_size     : way-3 combos per profile before rotate
+
+Missing path keys keep app/config.py defaults.
 EOF
   exit 0
 fi

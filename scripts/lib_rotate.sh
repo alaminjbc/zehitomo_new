@@ -8,20 +8,32 @@ SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROTATE_CONFIG="${ROTATE_CONFIG:-$SCRIPTS_DIR/rotate_config.json}"
 
 PYTHON="${PYTHON:-python}"
-if [[ -x "/Users/alamin/miniconda3/envs/zehitomo/bin/python" ]]; then
+if [[ -x "/opt/miniconda3/envs/zehitomo/bin/python" ]]; then
+  PYTHON="/opt/miniconda3/envs/zehitomo/bin/python"
+elif [[ -x "/Users/alamin/miniconda3/envs/zehitomo/bin/python" ]]; then
   PYTHON="/Users/alamin/miniconda3/envs/zehitomo/bin/python"
 fi
 
 SERVICE="${SERVICE:-電気屋・電気工事}"
 OPTIONS="${OPTIONS:-combination_creation/options.json}"
 OUTPUT="${OUTPUT:-output.json}"
+SHEET="${SHEET:-zehitomo_main.csv}"
+PROFILE_STATUS="${PROFILE_STATUS:-scripts/profile_status.json}"
 BATCH_MAX="${BATCH_MAX:-6}"
 BATCH_SIZE="${BATCH_SIZE:-3}"
 MODE="${MODE:-batch}"
 CAPTCHA_EXIT=2
 PROFILES=()
 
-# Load scripts/rotate_config.json into MODE / SERVICE / PROFILES / …
+# Export paths so app.config / profile_status pick them up.
+export_path_env() {
+  export ZEHITOMO_OPTIONS="$OPTIONS"
+  export ZEHITOMO_OUTPUT="$OUTPUT"
+  export ZEHITOMO_SHEET="$SHEET"
+  export ZEHITOMO_PROFILE_STATUS="$PROFILE_STATUS"
+}
+
+# Load scripts/rotate_config.json into MODE / SERVICE / PROFILES / paths …
 load_rotate_config() {
   local config_path="${1:-$ROTATE_CONFIG}"
   if [[ ! -f "$config_path" ]]; then
@@ -57,8 +69,14 @@ if not profiles:
 
 python = str(data.get("python") or "").strip()
 service = str(data.get("service") or "電気屋・電気工事")
-options = str(data.get("options") or "combination_creation/options.json")
-output = str(data.get("output") or "output.json")
+options = str(
+    data.get("options") or "combination_creation/options.json"
+).strip()
+output = str(data.get("output") or "output.json").strip()
+sheet = str(data.get("sheet") or "zehitomo_main.csv").strip()
+profile_status = str(
+    data.get("profile_status") or "scripts/profile_status.json"
+).strip()
 batch_max = int(data.get("batch_max") or 6)
 batch_size = int(data.get("batch_size") or 3)
 
@@ -66,6 +84,8 @@ print(f"MODE={shlex.quote(mode)}")
 print(f"SERVICE={shlex.quote(service)}")
 print(f"OPTIONS={shlex.quote(options)}")
 print(f"OUTPUT={shlex.quote(output)}")
+print(f"SHEET={shlex.quote(sheet)}")
+print(f"PROFILE_STATUS={shlex.quote(profile_status)}")
 print(f"BATCH_MAX={shlex.quote(str(batch_max))}")
 print(f"BATCH_SIZE={shlex.quote(str(batch_size))}")
 if python:
@@ -73,6 +93,7 @@ if python:
 print("PROFILES=(" + " ".join(shlex.quote(p) for p in profiles) + ")")
 PY
   )"
+  export_path_env
 }
 
 require_profiles() {
@@ -192,11 +213,14 @@ run_combo() {
   echo "############################################################"
   echo "# profile=$profile  combo=$combo  service=$SERVICE"
   echo "############################################################"
+  export_path_env
   "$PYTHON" -m app.main "$profile" \
     --service "$SERVICE" \
     --combination "$combo" \
     --options "$OPTIONS" \
-    --output "$OUTPUT"
+    --output "$OUTPUT" \
+    --sheet "$SHEET" \
+    --profile-status "$PROFILE_STATUS"
 }
 
 # Bash 3.2 (macOS /bin/bash) has no mapfile/readarray.
@@ -212,6 +236,7 @@ load_pending_combos() {
 
 print_rotate_settings() {
   local -a eligible=()
+  export_path_env
   read_eligible_profiles eligible
   echo "Config   : $ROTATE_CONFIG"
   echo "Repo     : $ROOT"
@@ -223,10 +248,11 @@ print_rotate_settings() {
   else
     echo "Eligible : (none — all on cooldown)"
   fi
-  echo "Status   : scripts/profile_status.json"
   echo "Service  : $SERVICE"
   echo "Options  : $OPTIONS"
   echo "Output   : $OUTPUT"
+  echo "Sheet    : $SHEET"
+  echo "Status   : $PROFILE_STATUS"
   echo "BATCH_MAX: $BATCH_MAX"
   echo "BATCH_SIZE: $BATCH_SIZE"
 }
