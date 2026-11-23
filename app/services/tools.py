@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-from urllib.parse import quote_plus
 
 from browser_use import ActionResult, Tools
 from browser_use.tools.views import NoParamsAction
@@ -11,16 +10,14 @@ from browser_use.tools.views import NoParamsAction
 from app.config import START_URL
 from app.services.browser import (
     CHAT_CONTENT_JS,
-    GOOGLE_DISMISS_CONSENT_JS,
-    GOOGLE_TOP_RESULTS_JS,
+    GOOGLE_CAPTCHA_BLOCKED_MSG,
     current_url,
+    lookup_zehitomo_profile_url,
     page_eval,
     page_goto,
 )
 from app.services.urls import (
     extract_other_website_urls,
-    normalize_zehitomo_profile_url,
-    unwrap_google_href,
 )
 
 
@@ -143,137 +140,13 @@ def build_tools() -> Tools:
         if "zehitomo.com" not in return_url.lower():
             return_url = return_url or START_URL
 
-        query = f"{name} ゼヒトモ"
-        search_url = "https://www.google.com/search?hl=ja&gl=jp&q=" + quote_plus(
-            query
+        result = await lookup_zehitomo_profile_url(
+            page, browser_session, name, max_queries=2
         )
-
-        print(f"[profile-url] search: {query!r}")
-        await page_goto(page, search_url, settle_s=2.5)
-        consent = await page_eval(page, GOOGLE_DISMISS_CONSENT_JS)
-        if isinstance(consent, dict) and consent.get("clicked"):
-            print(f"[profile-url] dismissed Google consent: {consent}")
-            await asyncio.sleep(1.5)
-
-        serp = await page_eval(page, GOOGLE_TOP_RESULTS_JS)
-        results: list[dict] = []
-        serp_profiles: list[dict] = []
-        if isinstance(serp, dict):
-            raw = serp.get("results") or []
-            if isinstance(raw, list):
-                results = [r for r in raw if isinstance(r, dict)]
-            raw_profiles = serp.get("profiles") or []
-            if isinstance(raw_profiles, list):
-                serp_profiles = [r for r in raw_profiles if isinstance(r, dict)]
-            print(
-                f"[profile-url] SERP count={serp.get('count')} "
-                f"profiles_on_serp={len(serp_profiles)} "
-                f"titles={[r.get('title') for r in results[:2]]}"
-            )
-        else:
-            print(f"[profile-url] SERP parse failed: {serp!r}")
-
-        profile_url = ""
-        opened: list[dict[str, str]] = []
-
-        # Prefer a zehitomo profile link already visible on the SERP
-        # (e.g. クリーンデイ → /profile/三田村-様/pro).
-        for i, result in enumerate(serp_profiles[:3], start=1):
-            title = str(result.get("title") or "")
-            href = unwrap_google_href(str(result.get("href") or "").strip())
-            matched = normalize_zehitomo_profile_url(href)
-            if not matched:
-                continue
-            opened.append(
-                {
-                    "rank": str(i),
-                    "title": title,
-                    "href": href,
-                    "final": href,
-                    "matched": matched,
-                    "how": "serp_profile_link",
-                }
-            )
-            print(
-                f"[profile-url] SERP profile link #{i}: {matched}"
-            )
-            profile_url = matched
-            break
-
-        # Otherwise open the first two organic results and verify the URL.
-        if not profile_url:
-            for i, result in enumerate(results[:2], start=1):
-                title = str(result.get("title") or "")
-                href = unwrap_google_href(str(result.get("href") or "").strip())
-                matched = normalize_zehitomo_profile_url(href)
-                if matched:
-                    opened.append(
-                        {
-                            "rank": str(i),
-                            "title": title,
-                            "href": href,
-                            "final": href,
-                            "matched": matched,
-                            "how": "serp_href",
-                        }
-                    )
-                    print(
-                        f"[profile-url] #{i} SERP href already profile: {matched}"
-                    )
-                    profile_url = matched
-                    break
-
-                if not href.startswith("http"):
-                    opened.append(
-                        {
-                            "rank": str(i),
-                            "title": title,
-                            "ok": "false",
-                            "reason": "bad_href",
-                            "href": href,
-                        }
-                    )
-                    continue
-
-                print(f"[profile-url] #{i} open title={title!r} href={href!r}")
-                try:
-                    await page_goto(page, href, settle_s=2.5)
-                except Exception as e:
-                    opened.append(
-                        {
-                            "rank": str(i),
-                            "title": title,
-                            "href": href,
-                            "ok": "false",
-                            "reason": f"goto_failed:{type(e).__name__}",
-                        }
-                    )
-                    print(f"[profile-url] #{i} goto failed: {e}")
-                    await page_goto(page, search_url, settle_s=1.5)
-                    continue
-
-                final_url = await current_url(browser_session, page)
-                matched = normalize_zehitomo_profile_url(final_url)
-                opened.append(
-                    {
-                        "rank": str(i),
-                        "title": title,
-                        "href": href,
-                        "final": final_url,
-                        "matched": matched,
-                        "how": "opened",
-                    }
-                )
-                print(
-                    f"[profile-url] #{i} final={final_url!r} "
-                    f"matched={matched or '(no)'}"
-                )
-                if matched:
-                    profile_url = matched
-                    break
-
-                # Back to SERP before trying the next result.
-                await page_goto(page, search_url, settle_s=1.5)
+        profile_url = result.get("url") or ""
+        if result.get("blocked") and not profile_url:
+            profile_url = GOOGLE_CAPTCHA_BLOCKED_MSG
+        query = result.get("query") or f"{name} ゼヒトモ"
 
         try:
             await page_goto(page, return_url, settle_s=1.5)
@@ -284,13 +157,19 @@ def build_tools() -> Tools:
             except Exception:
                 pass
 
-        print(f"[profile-url] done query={query!r} → {profile_url or '(none)'}")
+        print(
+            f"[profile-url] done query={query!r} → {profile_url or '(none)'} "
+            f"how={result.get('how')!r} blocked={result.get('blocked')}"
+        )
         return ActionResult(
             extracted_content=json.dumps(
                 {
                     "contractor_name": name,
                     "search_query": query,
-                    "opened_results": opened,
+                    "queries_tried": result.get("queries") or [],
+                    "how": result.get("how") or "",
+                    "opened_results": result.get("opened") or [],
+                    "google_blocked": bool(result.get("blocked")),
                     "url_to_access_to_contractor": profile_url,
                     "return_url": return_url,
                     "instruction": (

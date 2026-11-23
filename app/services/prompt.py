@@ -63,7 +63,9 @@ Flow:
      → tool searches Google for: `{{contractor_name}} ゼヒトモ`
      → opens the first two organic Google result links and checks for
        zehitomo.com/profile/...
-     → use its url_to_access_to_contractor ("" if none match)
+     → use its url_to_access_to_contractor
+       ("" if none match; if Google captcha blocked search, keep the
+        tool message as-is — do not replace with "")
      → tool already returns to the Zehitomo request page.
        Do NOT use go_back. Do NOT open the homepage.
        Continue with the NEXT contractor on the left list.

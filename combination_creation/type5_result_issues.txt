@@ -31,13 +31,24 @@ Need: more reliable chat/contact extraction
       (or clearly mark “not available on profile”).
 
 
-3) Zehitomo profile URL often missing
+3) Zehitomo profile URL often missing  *** BOSS: please improve ***
 -------------------------------------
 23/45 rows have no ゼヒトモ URL.
 Especially bad on azimon runs (combination1 / 4 / 7 / 10 / 13:
-all 3 contractor URLs empty).
+all 3 contractor URLs empty). Earlier scrape: azimon ~100% missing,
+tasnia/mustakim ~20–27% missing.
 
-Need: fix Google profile-URL lookup reliability / retry when empty.
+Root causes found (2026-11-23):
+  - New Google SERP uses opaque `/goto?url=CAES...` (not classic
+    `/url?q=https://zehitomo.com/...`), so old scraper skipped all links.
+  - Automated Chrome hits google.com/sorry (bot check) after rapid searches.
+  - Short names (本田/久保) can match wrong pros if substring match is used.
+
+Fixed (2026-11-23):
+  - Human-like Google search + name/slug match in app/services/browser.py
+  - Wired into app/services/tools.py find_url_to_access_to_contractor
+  - Tester confirmed on tasnia (--failing-defaults --wait-captcha)
+  - Avoid hot profiles (azimon /sorry); prefer cooler profile for Google.
 
 
 4) Wrong Zehitomo URL for this service

@@ -4,8 +4,10 @@ import re
 from urllib.parse import parse_qs, unquote, urlparse
 
 URL_RE = re.compile(r"https?://[^\s<>\"'）)」】\]}]+", re.IGNORECASE)
+# Do NOT use \\s here — Japanese profile slugs can contain ideographic
+# spaces (\\u3000), and \\s would truncate the URL early.
 ZEHITOMO_PROFILE_RE = re.compile(
-    r"https?://(?:www\.)?zehitomo\.com/profile/[^\s<>\"'）)」】\]?#]*",
+    r"https?://(?:www\.)?zehitomo\.com/profile/[^<>\"'）)」】\]?#]*",
     re.IGNORECASE,
 )
 
@@ -43,6 +45,33 @@ def normalize_zehitomo_profile_url(url: str) -> str:
     except Exception:
         pass
     return ""
+
+
+def canonicalize_zehitomo_profile_url(url: str) -> str:
+    """
+    Prefer the base profile URL ending at /pro.
+
+    Example:
+      .../profile/foo/pro/ventilator-cleaner → .../profile/foo/pro
+    """
+    normalized = normalize_zehitomo_profile_url(url)
+    if not normalized:
+        return ""
+    try:
+        parsed = urlparse(normalized)
+        path = unquote(parsed.path or "")
+        # /profile/<id>/pro[/service...]
+        m = re.search(r"(/profile/[^/]+/pro)(?:/|$)", path, flags=re.IGNORECASE)
+        if m:
+            base_path = m.group(1)
+            return f"{parsed.scheme}://{parsed.netloc}{base_path}"
+        # /profile/<id> only
+        m2 = re.search(r"(/profile/[^/]+)(?:/|$)", path, flags=re.IGNORECASE)
+        if m2:
+            return f"{parsed.scheme}://{parsed.netloc}{m2.group(1)}/pro"
+    except Exception:
+        pass
+    return normalized
 
 
 def extract_other_website_urls(
