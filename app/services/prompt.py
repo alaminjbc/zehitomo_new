@@ -26,8 +26,10 @@ This is {combination_id} ({index}/{total}) for service 「{service_name}」.
 
 You MUST follow the fixed questionnaire answers below. Do NOT pick random options.
 Do NOT skip steps. Do NOT invent answers.
+Ignore on-screen question wording / labels — only match the answer text in order.
 
-Exact answers list: {json.dumps(answers, ensure_ascii=False)}
+Step count: {len(steps)}
+Exact answers list (in order): {json.dumps(answers, ensure_ascii=False)}
 
 LOGIN CHECK (important — do not get this wrong):
 - LOGGED IN = a circular profile / avatar button is visible in the TOP-RIGHT
@@ -46,7 +48,7 @@ Flow:
 3. Go directly to the service page:
    {service_url}
 4. Open the request form if needed (CTA / 「プロを探す」 / similar button).
-5. Complete the questionnaire EXACTLY in this order:
+5. Complete the questionnaire EXACTLY in this order (answers only, no labels):
 {steps_text}
 6. If captcha appears or 「プロを見る」 does nothing: call report_captcha and STOP.
 7. If 「前回の依頼を確認する」 and 「新しく依頼を出す」 appear,

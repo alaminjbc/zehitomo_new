@@ -8,6 +8,18 @@
       "eligible_after": "2026-11-25T08:01:45.875019+00:00",
       "last_service": "民泊清掃",
       "last_combination": "combination5"
+    },
+    "alamin": {
+      "status": "active",
+      "last_success_at": "2026-11-24T11:23:56.700049+00:00"
+    },
+    "tasnia": {
+      "status": "active",
+      "last_success_at": "2026-11-24T11:31:06.164558+00:00"
+    },
+    "mustakim": {
+      "status": "active",
+      "last_success_at": "2026-11-24T11:17:00.243247+00:00"
     }
   }
 }

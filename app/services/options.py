@@ -47,21 +47,38 @@ def answers_from_steps(steps: list[dict]) -> list[str]:
     return [str(step.get("select", "")) for step in steps]
 
 
+def _is_postal_select(select: str, label: str = "") -> bool:
+    """Postal step: NNN-NNNN select, or legacy label containing 郵便番号."""
+    if re.match(r"^\d{3}-\d{4}$", str(select).strip()):
+        return True
+    return "郵便番号" in str(label or "")
+
+
 def format_steps_for_prompt(steps: list[dict]) -> str:
-    lines: list[str] = []
+    """
+    Label-free questionnaire instructions for the agent.
+
+    Only step index + select values (and postal CTA). Question text is omitted
+    so the same answer list can be reused across services that share options.
+    """
+    total = len(steps)
+    lines = [
+        f"There are {total} questionnaire steps. "
+        "Do NOT use question labels — match each answer to the option "
+        "visible on screen, in this exact order:",
+    ]
     for i, step in enumerate(steps, start=1):
-        label = step.get("label", "")
-        select = step.get("select", "")
-        if "郵便番号" in label or re.match(r"\d{3}-\d{4}", str(select)):
+        label = str(step.get("label") or "")
+        select = str(step.get("select") or "")
+        if _is_postal_select(select, label):
             lines.append(
-                f"{i}. Postal / address step「{label}」:\n"
+                f"{i}. Postal / address step:\n"
                 f"   - Enter postal code `{select}`\n"
                 f"   - Click 「プロを見る」"
             )
         else:
             lines.append(
-                f"{i}. Question「{label}」:\n"
-                f"   - Select exactly: 「{select}」\n"
+                f"{i}. Select exactly: 「{select}」\n"
                 f"   - Then click 「次へ」 if that button is visible "
                 f"(entry-button choices may advance automatically)."
             )

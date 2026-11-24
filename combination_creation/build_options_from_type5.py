@@ -30,18 +30,23 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+OUTPUT_DIR = HERE / "Output"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+INPUT_DIR = HERE / "Input"
+INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_XLSX = HERE / "[AI Zehitomo] management sheet.xlsx"
-DEFAULT_SHEET = "combination_type_5"
-DEFAULT_OUTPUT = HERE / "options_type_5.json"
-TEST_SHEET = "test_combination_type_5"
-TEST_OUTPUT = HERE / "options_test_type_5.json"
-QUESTION_TYPES = HERE / "question_types.json"
-MAIN_OPTIONS = HERE / "options.json"
+DEFAULT_XLSX = INPUT_DIR / "[AI Zehitomo] management sheet_tokyo.xlsx"
+DEFAULT_SHEET = "combination_type_5_tokyo"
+
+DEFAULT_OUTPUT = OUTPUT_DIR / "options_type_5_tokyo.json"
+TEST_SHEET = "test_combination_type_5_tokyo"
+TEST_OUTPUT = OUTPUT_DIR / "options_test_type_5_tokyo.json"
+QUESTION_TYPES = INPUT_DIR / "question_types_tokyo.json"
+MAIN_OPTIONS = OUTPUT_DIR / "options_tokyo.json"
 
 SERVICE_NAME = "民泊清掃"
 DEFAULT_SERVICE_URL = "/home/cleaning/other-cleaning/airbnb-cleaner"
-DEFAULT_LOCATION_LIMIT = 20
+DEFAULT_LOCATION_LIMIT = 10
 # Boss test sheet: 12 Q-rows, one shared location code.
 TEST_LOCATION_LIMIT = 1
 

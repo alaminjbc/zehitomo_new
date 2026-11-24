@@ -1,8 +1,8 @@
 {
-  "mode": "until_captcha",
-  "profiles": ["azimon"],
+  "mode": "round_robin",
+  "profiles": ["alamin","tasnia","mustakim"],
   "service": "民泊清掃",
-  "options": "combination_creation/options_test_type_5.json",
+  "options": "combination_creation/Output/options_type_5_tokyo.json",
   "output": "output.json",
   "sheet": "zehitomo_main.csv",
   "profile_status": "scripts/profile_status.json",
