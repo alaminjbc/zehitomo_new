@@ -25,21 +25,23 @@ GOOGLE_DRIVE_CREDENTIALS=credentials/google-drive-service-account.json
 Runtime image: **Python 3.12 + Google Chrome + Xvfb**. Compose mounts **this whole project** into the container — files stay on the host (Mac or Hostinger).
 
 ```bash
-# 1) build (once, or after Dockerfile / requirements change)
-docker compose build
+# Terminal 1 — start container (Xvfb + sleep; stays running)
+docker compose up --build
 
-# 2) smoke-check (should print Chrome version + help)
-docker compose run --rm scrape google-chrome --version
-docker compose run --rm scrape python -m app.main --help
-
-# 3) scrape one combination
-docker compose run --rm scrape python -m app.main alamin --service 民泊清掃 --limit 1 \
-  --options combination_creation/Output/options_type_5_tokyo.json \
-  --output output.json \
-  --rerun
+# Terminal 2 — open a shell inside, then run like local
+docker compose exec scrape bash
+./scripts/run_rotate.sh
+# or one combo:
+# python -m app.main alamin --service 民泊清掃 --limit 1 \
+#   --options combination_creation/Output/options_type_5_tokyo.json \
+#   --output output.json --rerun
 ```
 
-You should see `[entrypoint] starting Xvfb...` in the **terminal** (not always in Docker Desktop Logs).
+Stop with `Ctrl+C` in terminal 1, or `docker compose down`.
+
+You should see `[entrypoint] starting Xvfb...` in terminal 1.
+
+**One-shot (no exec):** `docker compose run --rm scrape ./scripts/run_rotate.sh`
 
 **Mac (Apple Silicon):** `platform: linux/amd64` runs via Rosetta — often slow. Prefer **conda** for day-to-day local runs; use Docker on **Hostinger (amd64)** for deploy.
 

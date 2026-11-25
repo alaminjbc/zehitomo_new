@@ -1,14 +1,14 @@
 # Zehitomo scrape — same project folder on Mac or Hostinger KVM.
 #
-#   docker compose build
-#   docker compose run --rm scrape python -m app.main PROFILE --service SERVICE --limit 1 \
-#     --options combination_creation/Output/options_type_5_tokyo.json \
-#     --output output.json --rerun
+# Terminal 1 (keep container running):
+#   docker compose up --build
 #
-# Notes:
-# - Mounts this repo into /app (code + profiles + output stay on the host).
-# - .env is loaded for GOOGLE_API_KEY etc. (never baked into the image).
-# - Apple Silicon: linux/amd64 uses Rosetta — slow; prefer conda on Mac, Docker on Hostinger.
+# Terminal 2 (shell inside, then run rotate / scrape):
+#   docker compose exec scrape bash
+#   ./scripts/run_rotate.sh
+#   # or: python -m app.main alamin --service 民泊清掃 --limit 1 ...
+#
+# Stop: Ctrl+C in terminal 1, or: docker compose down
 
 services:
   scrape:
@@ -26,4 +26,7 @@ services:
     stdin_open: true
     volumes:
       - .:/app
-    command: ["python", "-m", "app.main", "--help"]
+    # Stay up so you can exec in; entrypoint still starts Xvfb first
+    command: ["sleep", "infinity"]
+    # command: ["python", "-m", "app.main", "--help"]
+
