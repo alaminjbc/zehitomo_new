@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libxkbcommon0 \
       libxrandr2 \
       unzip \
+      x11vnc \
       xauth \
       xdg-utils \
       xvfb \

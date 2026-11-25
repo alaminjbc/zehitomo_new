@@ -281,6 +281,25 @@ def find_google_chrome() -> Path | None:
     return None
 
 
+def linux_chrome_args() -> list[str]:
+    """
+    Extra Chrome flags needed on Linux / Docker. Empty on macOS / Windows.
+
+    --password-store=basic: encrypt cookies with Chrome's built-in key instead
+      of the desktop keyring (GNOME/KWallet). login_profile.py and the scraper
+      must agree, otherwise the scraper cannot decrypt the login cookies and
+      Zehitomo shows you as logged out. Docker has no keyring at all.
+    --no-sandbox: Chrome refuses to start as root (the Docker container user)
+      unless the sandbox is disabled.
+    """
+    if not sys.platform.startswith("linux"):
+        return []
+    args = ["--password-store=basic"]
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        args.append("--no-sandbox")
+    return args
+
+
 def clear_stale_profile_locks(path: Path) -> list[str]:
     """Remove Singleton* leftovers from a crashed Chrome launch."""
     removed: list[str] = []

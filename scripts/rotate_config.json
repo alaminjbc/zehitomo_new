@@ -1,6 +1,6 @@
 {
   "mode": "round_robin",
-  "profiles": ["alamin","tasnia","mustakim"],
+  "profiles": ["tasnia"],
   "service": "民泊清掃",
   "options": "combination_creation/Output/options_type_5_tokyo.json",
   "output": "output.json",

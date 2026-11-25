@@ -22,6 +22,7 @@ from app.models import ScrapingResult
 from app.services.browser import (
     clear_stale_profile_locks,
     find_google_chrome,
+    linux_chrome_args,
     profile_path,
     trim_profile_logged,
 )
@@ -197,7 +198,8 @@ async def scrape_one(
             "--disable-window-activation",
             "--disable-focus-on-load",
         ],
-        args=["--start-maximized"],
+        # Linux/Docker: same --password-store as login_profile.py (+ root sandbox fix).
+        args=["--start-maximized", *linux_chrome_args()],
     )
     agent = Agent(
         task=build_task(

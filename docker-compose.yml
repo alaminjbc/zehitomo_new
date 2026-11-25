@@ -20,6 +20,11 @@ services:
     environment:
       PYTHONUNBUFFERED: "1"
       DISPLAY: ":99"
+      # VNC=1 → x11vnc on :5900 for logging in (see usages.md). Optional VNC_PASSWORD in .env.
+      VNC: "${VNC:-0}"
+    ports:
+      # Host loopback only — reach it from your laptop via: ssh -L 5900:localhost:5900 user@vps
+      - "127.0.0.1:5900:5900"
     working_dir: /app
     shm_size: "2gb"
     tty: true

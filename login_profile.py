@@ -74,18 +74,44 @@ def launch_chrome(user_data_dir: Path, url: str) -> None:
             "Playwright/Chromium cannot be used for Google login (Google blocks it)."
         )
 
+    from app.services.browser import linux_chrome_args
+
     # No remote debugging or automation flags — required for Google sign-in.
-    subprocess.Popen(
+    # On Linux/Docker add --password-store=basic (must match the scraper) and
+    # --no-sandbox when running as root.
+    extra = linux_chrome_args()
+    if extra:
+        print(f"Linux Chrome flags: {' '.join(extra)}")
+    log_path = user_data_dir.parent / f"{user_data_dir.name}.chrome.log"
+    log = log_path.open("w")
+    proc = subprocess.Popen(
         [
             str(chrome),
             f"--user-data-dir={user_data_dir.resolve()}",
             "--no-first-run",
             "--no-default-browser-check",
+            *extra,
             url,
         ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=log,
+        stderr=subprocess.STDOUT,
         start_new_session=True,
+    )
+    # Surface an immediate crash (no display, sandbox error) instead of
+    # leaving the user staring at a window that never opens.
+    try:
+        code = proc.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        return
+    log.close()
+    if code == 0:
+        # Handed off to a Chrome already running with this profile.
+        return
+    tail = log_path.read_text(errors="replace")[-1500:]
+    raise RuntimeError(
+        f"Chrome exited immediately (code {code}). Log: {log_path}\n{tail}\n"
+        "Docker / server: is DISPLAY set and a VNC/X11 display available? "
+        "See usages.md → 'Login on Linux / Docker'."
     )
 
 
@@ -133,7 +159,7 @@ def main() -> None:
         sys.exit(1)
     try:
         asyncio.run(login(sys.argv[1]))
-    except FileNotFoundError as e:
+    except (FileNotFoundError, RuntimeError) as e:
         print(e)
         sys.exit(1)
 

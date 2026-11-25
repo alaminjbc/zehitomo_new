@@ -30,6 +30,8 @@ docker compose up --build
 
 # Terminal 2 — open a shell inside, then run like local
 docker compose exec scrape bash
+docker exec -it <container_id> bash
+docker exec -it 3b19b73f51f0 bash
 ./scripts/run_rotate.sh
 # or one combo:
 # python -m app.main alamin --service 民泊清掃 --limit 1 \
@@ -45,7 +47,7 @@ You should see `[entrypoint] starting Xvfb...` in terminal 1.
 
 **Mac (Apple Silicon):** `platform: linux/amd64` runs via Rosetta — often slow. Prefer **conda** for day-to-day local runs; use Docker on **Hostinger (amd64)** for deploy.
 
-**Profiles:** Mac Chrome profiles usually do **not** work in Linux Chrome. On Hostinger, create profiles with `login_profile.py` once (VNC/RDP helps for the login UI).
+**Profiles:** Mac Chrome profiles do **not** work in Linux Chrome (cookies are encrypted with the macOS Keychain). Log in once on each machine / container that scrapes — see **1. Log in once** below.
 
 ### Move to Hostinger KVM
 
@@ -72,13 +74,65 @@ While scraping, after each saved combination the code updates local files **and*
 
 ## 1. Log in once
 
-Opens real Google Chrome. Sign in on Zehitomo, quit Chrome, then press ENTER in the terminal.
+Every scraping account needs a saved Chrome profile under `profiles/<name>/`. `login_profile.py` opens **normal Google Chrome** (not automation — Google blocks sign-in there), you sign in to Zehitomo by hand, and the session is saved for later scrapes.
+
+**Do this once per machine.** A profile made on a Mac does not work on Linux / Docker (cookies are encrypted with the OS keychain), so log in again on each machine or container that scrapes.
+
+### Mac / Linux desktop
 
 ```bash
 python login_profile.py alamin
 ```
 
-The session is saved under `profiles/alamin/`. Use the same name later.
+1. Chrome opens on zehitomo.com
+2. Click 「ログイン」 and sign in (Google / email)
+3. Check the round profile icon is in the top-right corner → logged in
+4. **Quit Chrome completely** (Mac: Cmd+Q, Linux: close all its windows)
+5. Back in the terminal, press **ENTER**
+
+The session is saved under `profiles/alamin/`. Use the same name later:
+
+```bash
+python -m app.main alamin --service 民泊清掃 --limit 1
+```
+
+Repeat with another name (`python login_profile.py tasnia`, …) for each account used in rotation.
+
+### Docker on a server (Hostinger, no screen) — via VNC
+
+The container has no real screen, so you watch Chrome through VNC.
+
+```bash
+# 1) on the VPS — start the container with VNC enabled
+VNC=1 docker compose up --build          # optional: VNC_PASSWORD=... in .env
+
+# 2) on your Mac — tunnel the VNC port (only exposed on the VPS's localhost)
+ssh -L 5900:localhost:5900 user@your-vps
+#    then Finder → Go → Connect to Server → vnc://localhost:5900
+
+# 3) on the VPS, second terminal
+docker compose exec scrape python login_profile.py alamin
+#    Chrome appears in the VNC window → log in → close Chrome → press ENTER
+```
+
+### Docker on a Linux PC with a desktop — no VNC needed
+
+```bash
+xhost +local:docker
+docker compose run --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+  scrape python login_profile.py alamin
+```
+
+In Docker the profile is still written to `profiles/<name>/` on the host (the project folder is mounted), so later scrapes in the container reuse it.
+
+### Troubleshooting
+
+- **Scraper says not logged in / calls `wait_for_manual_login`:** run `login_profile.py <name>` again on that machine. On Linux, profiles made before the `--password-store=basic` change need this once.
+- **"Chrome exited immediately":** no display available. In Docker start with `VNC=1` (or the X11 command above). The Chrome log is at `profiles/<name>.chrome.log`.
+- **Profile is locked / Chrome won't open:** a Chrome window still uses that profile — quit it fully and retry.
+- On Linux, both login and scraper start Chrome with `--password-store=basic` (plus `--no-sandbox` as root in Docker) so they can read the same cookies. Don't remove it from only one side.
+
+### Trim profile caches
 
 Chrome cache junk is trimmed automatically after login and before each scrape (login cookies are kept). One-shot trim of all profiles:
 
