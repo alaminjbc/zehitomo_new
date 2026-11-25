@@ -1,0 +1,517 @@
+{
+  "options_file": "combination_creation/Output/options_type_5_tokyo.json",
+  "services": {
+    "民泊清掃": {
+      "service_url": "https://www.zehitomo.com/home/cleaning/other-cleaning/airbnb-cleaner",
+      "last_profile": "tasnia",
+      "combinations_done": {
+        "combination1": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0001"
+            }
+          ],
+          "postal_code": "100-0001",
+          "finished_at": "2026-11-24T10:32:14.434379+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "合同会社なんでも山亀さん",
+              "location": "東京都板橋区赤塚",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "孙さん",
+              "location": "東京都葛飾区東金町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/孙-小云-sw10KK2i1/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "永田さん",
+              "location": "東京都板橋区富士見町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/宮口-なつみ-udZbliYvD/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination2": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0002"
+            }
+          ],
+          "postal_code": "100-0002",
+          "finished_at": "2026-11-24T10:38:38.652156+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "後藤さん",
+              "location": "東京都渋谷区宇田川町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/後藤-孝幸-XrDXqjTGJ/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination3": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "集合住宅 （マンション・アパート）"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0003"
+            }
+          ],
+          "postal_code": "100-0003",
+          "finished_at": "2026-11-24T10:45:56.615699+00:00",
+          "profile": "tasnia",
+          "extracted_contractors": [
+            {
+              "contractor_name": "合同会社skew linesさん",
+              "location": "東京都新宿区新宿",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/橋本-卓磨-PWdg4BCsV/pro",
+              "other_contractor_website_url": "https://forms.gle/nFe8maEEjqXEQCFj8, https://portal.breezeway.io/task/report/5d0ffedd-6d33-4341-b962-dd651970ed45, https://my.matterport.com/show/?m=5AFiMouLETt, https://x.gd/lJOac, https://x.gd/I1bdw"
+            },
+            {
+              "contractor_name": "合同会社なんでも山亀さん",
+              "location": "東京都板橋区赤塚",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "永田さん",
+              "location": "東京都板橋区富士見町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/宮口-なつみ-udZbliYvD/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination4": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0004"
+            }
+          ],
+          "postal_code": "100-0004",
+          "finished_at": "2026-11-24T10:54:26.502103+00:00",
+          "profile": "mustakim",
+          "extracted_contractors": [
+            {
+              "contractor_name": "合同会社skew linesさん",
+              "location": "東京都新宿区新宿",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/橋本-卓磨-PWdg4BCsV/pro",
+              "other_contractor_website_url": "https://forms.gle/nFe8maEEjqXEQCFj8, https://portal.breezeway.io/task/report/5d0ffedd-6d33-4341-b962-dd651970ed45, https://my.matterport.com/show/?m=5AFiMouLETt, https://x.gd/lJOac, https://x.gd/I1bdw"
+            },
+            {
+              "contractor_name": "合同会社なんでも山亀さん",
+              "location": "東京都板橋区赤塚",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "功工業さん",
+              "location": "東京都世田谷区世田谷",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/功工業-2TGm28qkF/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination5": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0005"
+            }
+          ],
+          "postal_code": "100-0005",
+          "finished_at": "2026-11-24T10:54:26.502103+00:00",
+          "profile": "mustakim",
+          "extracted_contractors": [
+            {
+              "contractor_name": "合同会社skew linesさん",
+              "location": "東京都新宿区新宿",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/橋本-卓磨-PWdg4BCsV/pro",
+              "other_contractor_website_url": "https://forms.gle/nFe8maEEjqXEQCFj8, https://portal.breezeway.io/task/report/5d0ffedd-6d33-4341-b962-dd651970ed45, https://my.matterport.com/show/?m=5AFiMouLETt, https://x.gd/lJOac, https://x.gd/I1bdw"
+            },
+            {
+              "contractor_name": "合同会社なんでも山亀さん",
+              "location": "東京都板橋区赤塚",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "功工業さん",
+              "location": "東京都世田谷区世田谷",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/功工業-2TGm28qkF/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination6": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0006"
+            }
+          ],
+          "postal_code": "100-0006",
+          "finished_at": "2026-11-24T11:03:07.347539+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "トランサムさん",
+              "location": "東京都新宿区新宿",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/トランサム-NnHud9ZXZ/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "島村さん",
+              "location": "埼玉県さいたま市南区広ケ谷戸",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/島村-竜弥-9ghfYalfu/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "大幸サービスさん",
+              "location": "神奈川県横浜市港北区新羽町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination7": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0011"
+            }
+          ],
+          "postal_code": "100-0011",
+          "finished_at": "2026-11-24T11:09:44.935543+00:00",
+          "profile": "tasnia",
+          "extracted_contractors": [
+            {
+              "contractor_name": "株式会社イーストウインド（ファインライフ）",
+              "location": "東京都台東区柳橋",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社イーストウインド（ファ/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社レイリー",
+              "location": "東京都品川区豊町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/5aaf05263030741a31eb4e65/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination8": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0012"
+            }
+          ],
+          "postal_code": "100-0012",
+          "finished_at": "2026-11-24T11:17:00.239249+00:00",
+          "profile": "mustakim",
+          "extracted_contractors": [
+            {
+              "contractor_name": "合同会社K&Nさん",
+              "location": "東京都品川区東品川",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社 鎌倉 スタイルさん",
+              "location": "東京都大田区大森西",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社-鎌倉-スタイル-ZTPAv0wTx/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "ハウスクリーニングＨＯＭＥ’Ｓさん",
+              "location": "東京都武蔵村山市緑が丘",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination9": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0013"
+            }
+          ],
+          "postal_code": "100-0013",
+          "finished_at": "2026-11-24T11:23:56.695933+00:00",
+          "profile": "alamin",
+          "extracted_contractors": [
+            {
+              "contractor_name": "ARUZIさん",
+              "location": "東京都新宿区西落合",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/山口-慎二-eEOd74pEP/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社ナレッジさん",
+              "location": "埼玉県富士見市ふじみ野東",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社ナレッジ-u8QSDaRbr/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "株式会社サンリョウサービスさん",
+              "location": "東京都板橋区本町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/株式会社サンリョウサービス-nLd98Nj5O/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        },
+        "combination10": {
+          "steps": [
+            {
+              "label": "どちらで民泊清掃をご希望ですか？",
+              "select": "戸建タイプ"
+            },
+            {
+              "label": "いつ頃実施したいですか？",
+              "select": "可能な限り早く"
+            },
+            {
+              "label": "間取りを教えてください",
+              "select": "1R/1K/1DK/1LDK"
+            },
+            {
+              "label": "駐車スペースはございますか？",
+              "select": "駐車場あり（無料）"
+            },
+            {
+              "label": "郵便番号を入力して「プロを見る」",
+              "select": "100-0014"
+            }
+          ],
+          "postal_code": "100-0014",
+          "finished_at": "2026-11-24T11:31:06.160609+00:00",
+          "profile": "tasnia",
+          "extracted_contractors": [
+            {
+              "contractor_name": "Molinaさん",
+              "location": "東京都世田谷区中町",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "日本環境クリーンシステムさん",
+              "location": "東京都中央区銀座",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/中山-淳之-1dIfjFVQf/pro",
+              "other_contractor_website_url": ""
+            },
+            {
+              "contractor_name": "野村さん",
+              "location": "東京都世田谷区北烏山",
+              "phone_number": "",
+              "email": "",
+              "url_to_access_to_contractor": "https://www.zehitomo.com/profile/野村-洋一-4upsnzmeL/pro",
+              "other_contractor_website_url": ""
+            }
+          ]
+        }
+      }
+    }
+  }
+}

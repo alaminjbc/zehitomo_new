@@ -1,5 +1,7 @@
-playwright
-browser-use
+# Pin browser-use to the API this repo uses (0.13.x).
+# Unpinned `browser-use` installs 1.0+ and breaks imports like browser_use.tools.views.
+playwright>=1.49,<1.66
+browser-use==0.13.14
 python-dotenv
 google-api-python-client
 google-auth

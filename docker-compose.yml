@@ -1,0 +1,29 @@
+# Zehitomo scrape — same project folder on Mac or Hostinger KVM.
+#
+#   docker compose build
+#   docker compose run --rm scrape python -m app.main PROFILE --service SERVICE --limit 1 \
+#     --options combination_creation/Output/options_type_5_tokyo.json \
+#     --output output.json --rerun
+#
+# Notes:
+# - Mounts this repo into /app (code + profiles + output stay on the host).
+# - .env is loaded for GOOGLE_API_KEY etc. (never baked into the image).
+# - Apple Silicon: linux/amd64 uses Rosetta — slow; prefer conda on Mac, Docker on Hostinger.
+
+services:
+  scrape:
+    build: .
+    image: zehitomo-scrape:latest
+    platform: linux/amd64
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      DISPLAY: ":99"
+    working_dir: /app
+    shm_size: "2gb"
+    tty: true
+    stdin_open: true
+    volumes:
+      - .:/app
+    command: ["python", "-m", "app.main", "--help"]

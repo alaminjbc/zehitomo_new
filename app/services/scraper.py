@@ -32,6 +32,7 @@ from app.services.options import (
     load_options,
 )
 from app.services.drive import sync_scrape_artifacts
+from app.services.llm_cost import format_run_cost, run_cost_dict, summarize_run_cost
 from app.services.profile_status import mark_captcha, mark_success
 from app.services.prompt import build_task
 from app.services.sheet import append_contractors
@@ -163,7 +164,7 @@ async def scrape_one(
     combination: dict,
     index: int,
     total: int,
-) -> ScrapingResult:
+) -> tuple[ScrapingResult, dict[str, Any] | None]:
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
         raise ValueError("Set GOOGLE_API_KEY in .env")
@@ -213,17 +214,23 @@ async def scrape_one(
         output_model_schema=ScrapingResult,
         max_actions_per_step=5,
         use_vision=True,
+        calculate_cost=True,
     )
 
     try:
         history = await agent.run(max_steps=MAX_STEPS)
+        run_cost = summarize_run_cost(history, model=MODEL)
+        if run_cost:
+            print(format_run_cost(run_cost))
+        llm_cost = run_cost_dict(run_cost)
+
         result = history.structured_output
         if result is None:
             final = history.final_result()
             if not final:
                 if history_has_captcha(history):
                     raise CaptchaDetected("CAPTCHA_DETECTED")
-                raise RuntimeError("No result (captcha or page not reached)")
+                raise RuntimeError("No result (page not reached or LLM failed)")
             if _mentions_captcha(final) and "contractors" not in str(final).lower():
                 raise CaptchaDetected("CAPTCHA_DETECTED")
             try:
@@ -250,7 +257,7 @@ async def scrape_one(
                 f"[captcha] report_captcha was called earlier, but "
                 f"{len(usable)} contractor(s) were still extracted — saving them"
             )
-        return result
+        return result, llm_cost
     finally:
         await browser.kill()
 
@@ -349,7 +356,7 @@ async def run(
         print("=" * 60)
 
         try:
-            result = await scrape_one(
+            result, llm_cost = await scrape_one(
                 path=path,
                 service_name=service_name,
                 service_url=service_url,
@@ -401,6 +408,7 @@ async def run(
             "finished_at": finished_at,
             "profile": profile,
             "extracted_contractors": data["contractors"],
+            "llm_cost": llm_cost,
         }
         write_output(
             output,

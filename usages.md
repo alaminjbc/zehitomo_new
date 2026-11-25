@@ -20,6 +20,37 @@ GOOGLE_DRIVE_CREDENTIALS=credentials/google-drive-service-account.json
 
 `GOOGLE_MODEL` is optional. Quit Chrome completely (Cmd+Q) before a scrape that uses the same profile folder.
 
+## Docker (fresh setup)
+
+Runtime image: **Python 3.12 + Google Chrome + Xvfb**. Compose mounts **this whole project** into the container — files stay on the host (Mac or Hostinger).
+
+```bash
+# 1) build (once, or after Dockerfile / requirements change)
+docker compose build
+
+# 2) smoke-check (should print Chrome version + help)
+docker compose run --rm scrape google-chrome --version
+docker compose run --rm scrape python -m app.main --help
+
+# 3) scrape one combination
+docker compose run --rm scrape python -m app.main alamin --service 民泊清掃 --limit 1 \
+  --options combination_creation/Output/options_type_5_tokyo.json \
+  --output output.json \
+  --rerun
+```
+
+You should see `[entrypoint] starting Xvfb...` in the **terminal** (not always in Docker Desktop Logs).
+
+**Mac (Apple Silicon):** `platform: linux/amd64` runs via Rosetta — often slow. Prefer **conda** for day-to-day local runs; use Docker on **Hostinger (amd64)** for deploy.
+
+**Profiles:** Mac Chrome profiles usually do **not** work in Linux Chrome. On Hostinger, create profiles with `login_profile.py` once (VNC/RDP helps for the login UI).
+
+### Move to Hostinger KVM
+
+1. Copy the whole repo (`rsync` / `scp` / `git`), including `.env`, `profiles/`, `credentials/`.
+2. Install Docker + Compose on the VPS.
+3. `docker compose build` then the same `docker compose run ...` commands as above.
+
 ### Google Drive setup (Option 2)
 
 1. Google Cloud Console → create/select a project → enable **Google Drive API**
@@ -116,7 +147,9 @@ python -m app.main alamin --service 電気屋・電気工事 \
 python -m app.main alamin --service 電気屋・電気工事
 ```
 
-Results are written to `output.json` after each combination. The file keeps **all services** under `services.<service_name>.combinations_done` (switching service in rotate config does not wipe earlier services). Each combination stores steps, `extracted_contractors`, and the `profile` that ran it. Already-finished combinations are skipped unless you pass `--rerun`. Captcha exits with code `2` and does **not** mark that combination done — rotation scripts retry the same combination on the next profile.
+Results are written to `output.json` after each combination. The file keeps **all services** under `services.<service_name>.combinations_done` (switching service in rotate config does not wipe earlier services). Each combination stores steps, `extracted_contractors`, the `profile` that ran it, and measured `llm_cost` (tokens + `$` for that run). Already-finished combinations are skipped unless you pass `--rerun`. Captcha exits with code `2` and does **not** mark that combination done — rotation scripts retry the same combination on the next profile.
+
+After a combo finishes, the terminal also prints a line like `LLM cost: $0.42 (37 steps, …)`. Optional rate overrides in `.env`: `GEMINI_INPUT_USD_PER_1M`, `GEMINI_OUTPUT_USD_PER_1M` (defaults 0.75 / 3.75).
 
 Optional flags:
 

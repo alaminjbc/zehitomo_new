@@ -7,6 +7,7 @@ profiles/**
 venv
 .venv312
 .env
+data/
 credentials/
 **/google-drive-service-account.json
 **/*service-account*.json

@@ -1,5 +1,5 @@
 {
-  "cooldown_days": 2,
+  "cooldown_days": 3,
   "profiles": {
     "azimon": {
       "status": "cooldown",
@@ -11,11 +11,13 @@
     },
     "alamin": {
       "status": "active",
-      "last_success_at": "2026-11-24T11:23:56.700049+00:00"
+      "last_success_at": "2026-11-24T11:23:56.700049+00:00",
+      "last_service": "民泊清掃",
+      "last_combination": "combination1"
     },
     "tasnia": {
       "status": "active",
-      "last_success_at": "2026-11-24T11:31:06.164558+00:00"
+      "last_success_at": "2026-11-25T05:30:28.706908+00:00"
     },
     "mustakim": {
       "status": "active",
