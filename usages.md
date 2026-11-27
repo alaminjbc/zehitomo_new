@@ -100,6 +100,8 @@ Repeat with another name (`python login_profile.py tasnia`, …) for each accoun
 
 ### Docker on a server (Hostinger, no screen) — via VNC
 
+Full step-by-step guide (Mac / Linux viewer, password, troubleshooting): [`vnc_usages.md`](vnc_usages.md).
+
 The container has no real screen, so you watch Chrome through VNC.
 
 ```bash
